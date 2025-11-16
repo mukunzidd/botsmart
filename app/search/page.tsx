@@ -65,15 +65,9 @@ function SearchContent() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="gap-2 mb-4">
-              <ChevronLeft className="h-4 w-4" />
-              Back to home
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-bold mb-2">Search Results</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">Search Results</h1>
+          <p className="text-muted-foreground text-sm">
             {query ? (
               <>
                 Showing {totalResults} {totalResults === 1 ? "result" : "results"} for "

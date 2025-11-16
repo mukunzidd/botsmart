@@ -27,6 +27,7 @@ export function Header() {
   const [showMobileStoreSelector, setShowMobileStoreSelector] = useState(false)
   const [mounted, setMounted] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const mobileSearchRef = useRef<HTMLInputElement>(null)
 
   // Prioritize cart store, then session store
   const currentStoreId = cartStoreId || selectedStoreId
@@ -39,6 +40,17 @@ export function Header() {
 
   useEffect(() => {
     setMounted(true)
+
+    // Listen for search focus event from bottom nav
+    const handleFocusSearch = () => {
+      if (mobileSearchRef.current) {
+        mobileSearchRef.current.focus()
+        mobileSearchRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }
+
+    window.addEventListener('focus-mobile-search', handleFocusSearch)
+    return () => window.removeEventListener('focus-mobile-search', handleFocusSearch)
   }, [])
 
   const handleSearch = (e: FormEvent) => {
@@ -163,8 +175,9 @@ export function Header() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
                 <Input
+                  ref={mobileSearchRef}
                   type="search"
-                  placeholder={currentStore ? `Search from ${currentStore.name}` : "Search for Grocery, Stores..."}
+                  placeholder={searchPlaceholder}
                   className="pl-10 pr-4 rounded-lg bg-white border-0 text-sm h-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
