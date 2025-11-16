@@ -5,7 +5,7 @@ import Image from "next/image"
 import { useOrderStore } from "@/lib/store/order-store"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ChevronLeft, Package, Calendar, CreditCard } from "lucide-react"
+import { Package, Calendar, CreditCard } from "lucide-react"
 
 export default function OrderHistoryPage() {
   const { orders } = useOrderStore()
@@ -29,14 +29,8 @@ export default function OrderHistoryPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/profile">
-            <Button variant="ghost" size="sm" className="gap-2 mb-4">
-              <ChevronLeft className="h-4 w-4" />
-              Back to profile
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-bold">Order History</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Order History</h1>
           <p className="text-muted-foreground mt-2">
             View and track all your orders
           </p>

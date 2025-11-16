@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useCartStore } from "@/lib/store/cart-store"
+import { useSessionStore } from "@/lib/store/session-store"
 import { stores } from "@/lib/data/stores"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,12 +11,13 @@ import { ChevronLeft, Plus, Minus, Trash2, ShoppingBag, Store } from "lucide-rea
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotalPrice, clearCart, getStoreId } = useCartStore()
+  const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
   const totalPrice = getTotalPrice()
   const deliveryFee = 15.00 // Fixed delivery fee for now
   const finalTotal = totalPrice + deliveryFee
 
-  // Get the current store from cart
-  const currentStoreId = getStoreId()
+  // Get the current store from cart, or fall back to session selected store
+  const currentStoreId = getStoreId() || selectedStoreId
   const currentStore = currentStoreId ? stores.find(s => s.id === currentStoreId) : null
 
   if (items.length === 0) {
@@ -23,14 +25,8 @@ export default function CartPage() {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
-          <div className="mb-8">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2 mb-4">
-                <ChevronLeft className="h-4 w-4" />
-                Back to stores
-              </Button>
-            </Link>
-            <h1 className="text-3xl font-bold">Shopping Cart</h1>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold">Shopping Cart</h1>
           </div>
 
           {/* Empty State */}
@@ -42,9 +38,9 @@ export default function CartPage() {
             <p className="text-gray-500 mb-8 text-base">
               Add items from your favorite stores to get started
             </p>
-            <Link href="/">
+            <Link href={currentStore ? `/store/${currentStore.slug}` : "/"}>
               <Button size="lg" className="px-8 py-6 text-base rounded-full">
-                Browse Stores
+                {currentStore ? `Browse ${currentStore.name}` : "Browse Stores"}
               </Button>
             </Link>
           </div>
@@ -57,17 +53,11 @@ export default function CartPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="gap-2 mb-4 hover:bg-primary/5">
-              <ChevronLeft className="h-4 w-4" />
-              Continue Shopping
-            </Button>
-          </Link>
+        <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-primary">My Cart</h1>
-              <p className="text-gray-600 mt-2">
+              <h1 className="text-2xl font-bold text-primary">My Cart</h1>
+              <p className="text-gray-600 text-sm mt-1">
                 {items.length} {items.length === 1 ? "item" : "items"}
               </p>
             </div>
@@ -222,9 +212,9 @@ export default function CartPage() {
                 </Button>
               </Link>
 
-              <Link href="/">
+              <Link href={currentStore ? `/store/${currentStore.slug}` : "/"}>
                 <Button variant="outline" size="lg" className="w-full rounded-xl py-6 border-2 border-gray-200 hover:border-primary hover:bg-primary/5 font-semibold">
-                  Continue Shopping
+                  {currentStore ? `Browse ${currentStore.name}` : "Continue Shopping"}
                 </Button>
               </Link>
 

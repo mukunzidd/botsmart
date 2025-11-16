@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useCartStore } from "@/lib/store/cart-store"
-import { Home, Search, ShoppingCart, User } from "lucide-react"
+import { Home, Search, ShoppingCart, Package } from "lucide-react"
 
 export function MobileBottomNav() {
   const pathname = usePathname()
@@ -13,7 +13,7 @@ export function MobileBottomNav() {
     { href: "/", label: "Home", icon: Home },
     { href: "/search", label: "Search", icon: Search, isSearch: true },
     { href: "/cart", label: "Cart", icon: ShoppingCart, badge: cartItemCount > 0 ? cartItemCount : undefined },
-    { href: "/profile", label: "Profile", icon: User },
+    { href: "/profile/orders", label: "Orders", icon: Package },
   ]
 
   const handleSearchClick = (e: React.MouseEvent) => {

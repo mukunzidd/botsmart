@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useUserStore } from "@/lib/store/user-store"
 import { useOrderStore } from "@/lib/store/order-store"
@@ -9,21 +8,17 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
-  ChevronLeft,
   User,
   Package,
   MapPin,
   Settings,
-  LogOut,
   Edit,
   Plus,
-  Trash2,
   Check,
 } from "lucide-react"
 
 export default function ProfilePage() {
-  const router = useRouter()
-  const { user, isAuthenticated, updateProfile, logout } = useUserStore()
+  const { user, isAuthenticated, updateProfile } = useUserStore()
   const { orders } = useOrderStore()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -79,11 +74,6 @@ export default function ProfilePage() {
     setIsEditing(false)
   }
 
-  const handleLogout = () => {
-    logout()
-    router.push("/")
-  }
-
   if (!user) {
     return null
   }
@@ -94,20 +84,8 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="gap-2 mb-4">
-              <ChevronLeft className="h-4 w-4" />
-              Back to home
-            </Button>
-          </Link>
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">My Profile</h1>
-            <Button variant="outline" onClick={handleLogout} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">My Profile</h1>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
