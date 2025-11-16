@@ -220,7 +220,7 @@ export default function ProductDetailPage() {
                   size="lg"
                   className={`w-full h-16 text-lg rounded-xl font-bold ${
                     mounted && canAdd
-                      ? "bg-secondary hover:bg-secondary/90 text-primary shadow-lg"
+                      ? "bg-secondary hover:bg-secondary/90 text-primary shadow-lg cursor-pointer"
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
                 >

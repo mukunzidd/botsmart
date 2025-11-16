@@ -22,7 +22,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "BotsMart - Grocery Delivery in Botswana",
-  description: "Order groceries from your favorite stores in Gaborone and Francistown. Fast delivery, fresh products.",
+  description:
+    "Order groceries from your favorite stores in Gaborone and Francistown. Fast delivery, fresh products.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -39,9 +40,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased bg-background`}>
         <Header />
-        <main className="min-h-screen pb-16 md:pb-0 pt-2">
-          {children}
-        </main>
+        <main className="min-h-screen pb-16 md:pb-0 pt-2">{children}</main>
         <Footer />
         <MobileBottomNav />
       </body>

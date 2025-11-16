@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Minus, AlertCircle } from "lucide-react";
+import { Plus, Minus, AlertCircle, Heart } from "lucide-react";
 import { Product } from "@/types";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useState, useEffect } from "react";
 import { StoreSwitchModal } from "@/components/store-switch-modal";
 import { stores } from "@/lib/data/stores";
@@ -24,9 +25,11 @@ export function ProductCard({ product }: ProductCardProps) {
     getStoreId,
     clearCart,
   } = useCartStore();
+  const { toggleItem, isInWishlist } = useWishlistStore();
   const quantity = getItemQuantity(product.id);
   const [showModal, setShowModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const isWishlisted = isInWishlist(product.id);
 
   const canAdd = canAddProduct(product);
   const cartStoreId = getStoreId();
@@ -63,21 +66,50 @@ export function ProductCard({ product }: ProductCardProps) {
     setShowModal(false);
   };
 
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleItem(product.id);
+  };
+
   return (
     <div
-      className="bg-white overflow-hidden transition-all group shadow-sm hover:shadow-md border border-gray-100"
+      className="bg-white overflow-hidden transition-all duration-300 ease-out group shadow-sm hover:shadow-xl border border-gray-100 hover:border-primary/30 hover:-translate-y-1"
       style={{ borderRadius: "16px 16px 24px 24px" }}
     >
       {/* Product Image - Clickable */}
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-white cursor-pointer">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-contain p-4"
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
-          />
+        <div
+          className="relative aspect-square overflow-hidden bg-white cursor-pointer transition-all duration-300 group-hover:bg-gray-50"
+          style={{ borderRadius: "16px 16px 0 0" }}
+        >
+          {/* Heart Icon */}
+          <button
+            onClick={handleToggleWishlist}
+            className={`absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-white transition-all hover:scale-110 ${
+              isWishlisted ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+            aria-label={
+              isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+            }
+          >
+            <Heart
+              className={`h-4 w-4 transition-all ${
+                isWishlisted
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-600 hover:text-red-500"
+              }`}
+            />
+          </button>
+          <div className="relative w-full h-full p-2 transition-transform duration-300 group-hover:scale-105">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-contain transition-transform duration-300"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
+            />
+          </div>
         </div>
       </Link>
 
@@ -85,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="text-center space-y-1 px-3 pb-3 pt-2">
         {/* Product Name - Clickable */}
         <Link href={`/product/${product.slug}`}>
-          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer">
+          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer transition-colors duration-200 group-hover:text-primary">
             {product.name}
           </h3>
         </Link>
@@ -99,11 +131,11 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className="text-xs text-gray-400">{product.unit}</p>
 
         {/* Price */}
-        <div className="flex items-baseline justify-center gap-0.5 pt-1">
-          <span className="text-2xl font-bold text-gray-900">
+        <div className="flex items-baseline justify-center gap-0.5 pt-1 transition-transform duration-200 group-hover:scale-105">
+          <span className="text-2xl font-bold text-gray-900 transition-colors duration-200 group-hover:text-primary">
             {Math.floor(product.price)}
           </span>
-          <span className="text-sm font-medium text-gray-900">
+          <span className="text-sm font-medium text-gray-900 transition-colors duration-200 group-hover:text-primary">
             .{product.price.toFixed(2).split(".")[1]}
           </span>
           <span className="text-xs text-gray-500">P</span>
@@ -119,13 +151,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <button
               onClick={handleAddItem}
               disabled={!canAdd}
-              className={`w-full h-full rounded-2xl flex items-center justify-center transition-colors font-semibold ${
+              className={`w-full h-full rounded-2xl flex items-center justify-center transition-all duration-200 font-semibold ${
                 canAdd
-                  ? "bg-gray-100 hover:bg-secondary/30 text-gray-700 cursor-pointer"
+                  ? "bg-gray-100 hover:bg-secondary/30 text-gray-700 cursor-pointer group-hover:bg-secondary/20 group-hover:scale-105"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
             >
-              <Plus className="h-5 w-5" />
+              <Plus className="h-5 w-5 transition-transform duration-200 group-hover:rotate-90" />
             </button>
           ) : (
             <div className="flex items-center justify-center gap-3 bg-secondary/30 rounded-2xl h-full px-4">
