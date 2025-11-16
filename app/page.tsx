@@ -203,7 +203,7 @@ export default function Home() {
               {/* See All Button */}
               <div className="flex-shrink-0 sticky right-0 ml-auto">
                 <Link
-                  href="/search"
+                  href={currentStoreId ? `/store/${stores.find(s => s.id === currentStoreId)?.slug}` : "/search"}
                   className="flex flex-col items-center justify-center min-w-[120px] cursor-pointer group"
                 >
                   <div className="w-32 h-32 rounded-2xl bg-secondary flex items-center justify-center mb-3 hover:scale-105 transition-transform">
@@ -211,7 +211,7 @@ export default function Home() {
                       <ChevronRight className="h-7 w-7 text-primary" />
                     </div>
                   </div>
-                  <p className="text-sm font-bold text-primary">See all</p>
+                  <p className="text-sm font-bold text-primary">See more</p>
                 </Link>
               </div>
             </div>
@@ -223,7 +223,10 @@ export default function Home() {
       <section className="container mx-auto px-4 mb-12">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-bold text-gray-900">You might need</h2>
-          <Link href="/search" className="text-sm text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1">
+          <Link
+            href={currentStoreId ? `/store/${stores.find(s => s.id === currentStoreId)?.slug}` : "/search"}
+            className="text-sm text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1"
+          >
             See more <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
