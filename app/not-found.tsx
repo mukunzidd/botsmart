@@ -33,11 +33,11 @@ export default function NotFound() {
   const currentStore = mounted && currentStoreId ? stores.find(s => s.id === currentStoreId) : null
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 pb-20 md:pb-8">
+    <div className="min-h-[calc(100vh-5rem)] bg-background flex items-center justify-center px-4 py-8 pb-24 md:pb-12">
       <div className="max-w-lg w-full text-center">
         {/* Fun fact - At the top */}
         {mounted && randomFact && (
-          <div className="mb-8 p-4 bg-secondary/10 rounded-xl">
+          <div className="mb-6 p-3 bg-secondary/10 rounded-xl">
             <p className="text-sm text-gray-600">
               {randomFact}
             </p>
@@ -45,25 +45,20 @@ export default function NotFound() {
         )}
 
         {/* Large 404 */}
-        <div className="mb-8">
-          <h1 className="text-8xl md:text-9xl font-bold text-primary/20 mb-4">404</h1>
-          <div className="flex justify-center mb-6">
-            <div className="bg-primary/10 rounded-full p-6">
-              <ShoppingCart className="h-16 w-16 text-primary" />
+        <div className="mb-6">
+          <h1 className="text-7xl md:text-8xl font-bold text-primary/20 mb-3">404</h1>
+          <div className="flex justify-center mb-4">
+            <div className="bg-primary/10 rounded-full p-5">
+              <ShoppingCart className="h-12 w-12 md:h-14 md:w-14 text-primary" />
             </div>
           </div>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+            Page not found
+          </h2>
+          <p className="text-sm text-gray-600 mb-6">
+            We couldn't find what you're looking for. Let's get you back on track!
+          </p>
         </div>
-
-        {/* Cheeky Message */}
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-          Oops! Looks like you're lost
-        </h2>
-        <p className="text-gray-600 mb-2">
-          We couldn't find what you're looking for. Maybe it's out of stock? 🤔
-        </p>
-        <p className="text-sm text-gray-500 mb-8">
-          Don't worry though, we've got plenty of other great products waiting for you!
-        </p>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
