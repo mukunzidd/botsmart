@@ -66,12 +66,12 @@ export default function ProductDetailPage() {
   const lowestPrice = Math.min(product.price, ...uniqueStoreProducts.map(p => p.price))
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-8">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-8 mb-12">
           {/* Product Image */}
-          <div className="bg-white rounded-3xl p-8 border border-gray-100 sticky top-24 h-fit">
-            <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8">
+          <div className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-8 border border-gray-100 lg:sticky lg:top-24 h-fit">
+            <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl p-4 md:p-8">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -83,11 +83,11 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product Info */}
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-4 md:space-y-6">
             {/* Store Badge */}
             {store && (
-              <Link href={`/store/${store.slug}`} className="inline-flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl w-fit hover:border-primary hover:bg-primary/5 transition-all">
-                <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100">
+              <Link href={`/store/${store.slug}`} className="inline-flex items-center gap-2 md:gap-3 p-2.5 md:p-3 bg-white border border-gray-200 rounded-xl w-fit hover:border-primary hover:bg-primary/5 transition-all">
+                <div className="w-8 h-8 md:w-10 md:h-10 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                   <Image
                     src={store.logo}
                     alt={store.name}
@@ -96,9 +96,9 @@ export default function ProductDetailPage() {
                     sizes="40px"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs text-gray-500">Available at</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900 truncate">
                     {store.name}
                   </p>
                 </div>
@@ -107,10 +107,10 @@ export default function ProductDetailPage() {
 
             {/* Product Name */}
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2">
                 {product.name}
               </h1>
-              <p className="text-gray-600">{product.unit}</p>
+              <p className="text-sm md:text-base text-gray-600">{product.unit}</p>
             </div>
 
             {/* Rating */}
@@ -208,18 +208,18 @@ export default function ProductDetailPage() {
         {/* Others Store Section */}
         {uniqueStoreProducts.length > 0 && (
           <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-primary">Others store</h2>
-                <p className="text-gray-600 text-sm mt-1">Find the same product at different stores</p>
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary">Others store</h2>
+                <p className="text-gray-600 text-xs md:text-sm mt-1">Find the same product at different stores</p>
               </div>
-              <Link href="/search" className="text-primary hover:text-primary/80 font-semibold text-sm flex items-center gap-1">
+              <Link href="/search" className="text-primary hover:text-primary/80 font-semibold text-sm flex items-center gap-1 w-fit">
                 Visit stores
                 <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {uniqueStoreProducts.slice(0, 6).map((otherProduct) => {
                 const otherStore = stores.find(s => s.id === otherProduct.storeId)
                 const isLowestPrice = otherProduct.price === lowestPrice
@@ -227,53 +227,53 @@ export default function ProductDetailPage() {
                 return (
                   <div
                     key={otherProduct.id}
-                    className={`bg-white rounded-2xl p-5 border-2 transition-all hover:shadow-md ${
+                    className={`bg-white rounded-2xl p-4 border-2 transition-all hover:shadow-md ${
                       isLowestPrice
                         ? 'border-secondary bg-secondary/5'
                         : 'border-gray-200 hover:border-primary/30'
                     }`}
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       {/* Store Logo */}
                       {otherStore && (
-                        <div className="w-14 h-14 relative rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-200">
+                        <div className="w-12 h-12 md:w-14 md:h-14 relative rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-200">
                           <Image
                             src={otherStore.logo}
                             alt={otherStore.name}
                             fill
-                            className="object-contain p-2"
-                            sizes="56px"
+                            className="object-contain p-1 md:p-2"
+                            sizes="(max-width: 768px) 48px, 56px"
                           />
                         </div>
                       )}
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-bold text-gray-900 truncate">
+                        <div className="flex items-start gap-2 mb-1 flex-wrap">
+                          <p className="font-bold text-sm md:text-base text-gray-900 truncate flex-1 min-w-0">
                             {otherStore?.name}
                           </p>
                           {isLowestPrice && (
-                            <span className="px-2.5 py-1 bg-secondary text-primary text-xs font-bold rounded-full flex-shrink-0">
+                            <span className="px-2 py-0.5 bg-secondary text-primary text-xs font-bold rounded-full flex-shrink-0">
                               Best price
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 mb-3">
+                        <p className="text-xs text-gray-500 mb-2">
                           🚚 {otherStore?.deliveryTime}
                         </p>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-bold text-primary">
+                          <span className="text-xl md:text-2xl font-bold text-primary">
                             {Math.floor(otherProduct.price)}
                           </span>
-                          <span className="text-base font-bold text-primary">
+                          <span className="text-sm md:text-base font-bold text-primary">
                             .{otherProduct.price.toFixed(2).split('.')[1]}
                           </span>
-                          <span className="text-sm text-gray-600">P</span>
+                          <span className="text-xs md:text-sm text-gray-600">P</span>
                         </div>
                       </div>
 
-                      <Link href={`/product/${otherProduct.slug}`}>
-                        <Button size="sm" variant="outline" className="rounded-xl border-2 hover:bg-primary hover:text-white hover:border-primary font-semibold">
+                      <Link href={`/product/${otherProduct.slug}`} className="flex-shrink-0">
+                        <Button size="sm" variant="outline" className="rounded-xl border-2 hover:bg-primary hover:text-white hover:border-primary font-semibold text-xs md:text-sm px-3 py-1.5">
                           View
                         </Button>
                       </Link>
@@ -288,8 +288,8 @@ export default function ProductDetailPage() {
         {/* Similar Products */}
         <section>
           <div className="mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-primary">Similar products</h2>
-            <p className="text-gray-600 text-sm mt-1">You might also like these</p>
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary">Similar products</h2>
+            <p className="text-gray-600 text-xs md:text-sm mt-1">You might also like these</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {products

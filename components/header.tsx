@@ -156,7 +156,7 @@ export function Header() {
             <Link href="/cart" className="hidden md:block">
               <button className="relative h-9 w-9 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors">
                 <ShoppingCart className="h-5 w-5 text-primary" />
-                {cartItemCount > 0 && (
+                {mounted && cartItemCount > 0 && (
                   <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-secondary text-primary text-xs font-semibold flex items-center justify-center">
                     {cartItemCount}
                   </span>

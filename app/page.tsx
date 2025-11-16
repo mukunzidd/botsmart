@@ -200,8 +200,8 @@ export default function Home() {
                 </Link>
               ))}
 
-              {/* See All Button */}
-              <div className="flex-shrink-0 sticky right-0 ml-auto">
+              {/* See All Button - Hidden on mobile */}
+              <div className="hidden md:flex flex-shrink-0 sticky right-0 ml-auto">
                 <Link
                   href={currentStoreId ? `/store/${stores.find(s => s.id === currentStoreId)?.slug}` : "/search"}
                   className="flex flex-col items-center justify-center min-w-[120px] cursor-pointer group"
