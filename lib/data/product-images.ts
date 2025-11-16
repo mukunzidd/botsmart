@@ -34,10 +34,10 @@ export const productImages: Record<string, string> = {
   "p25": "https://images.unsplash.com/photo-1567191030106-d6b48e8c1b8d?w=400&h=400&fit=crop", // sauce
 
   // Beverages
-  "p26": "https://images.unsplash.com/photo-1550317138-694d3e9e00ce?w=400&h=400&fit=crop", // water
+  "p26": "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=400&h=400&fit=crop", // water
   "p27": "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=400&fit=crop", // coca cola
   "p28": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop", // orange juice
-  "p29": "https://images.unsplash.com/photo-1597318112874-b656c1454282?w=400&h=400&fit=crop", // tea
+  "p29": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop", // tea
   "p30": "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=400&fit=crop", // coffee
 
   // Bakery

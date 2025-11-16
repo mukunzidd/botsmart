@@ -1,112 +1,166 @@
 "use client"
 
+import { useState, FormEvent, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Search, ShoppingCart, MapPin, Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { useCartStore } from "@/lib/store/cart-store"
+import { useSessionStore } from "@/lib/store/session-store"
+import { MobileMenu } from "@/components/mobile-menu"
+import { SearchDropdown } from "@/components/search-dropdown"
+import { LocationStoreSelector } from "@/components/location-store-selector"
+import { stores } from "@/lib/data/stores"
 
 export function Header() {
-  // TODO: Replace with actual cart state from Zustand
-  const cartItemCount = 0
+  const router = useRouter()
+  const cartItemCount = useCartStore((state) => state.getTotalItems())
+  const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
+  const cartStoreId = useCartStore((state) => state.getStoreId())
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+
+  // Prioritize cart store, then session store
+  const currentStoreId = cartStoreId || selectedStoreId
+  const currentStore = currentStoreId ? stores.find(s => s.id === currentStoreId) : null
+  const searchPlaceholder = currentStore
+    ? `Search from ${currentStore.name}`
+    : "Search for Grocery, Stores, Vegetable or Meat"
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      setShowSearchDropdown(false)
+    }
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4">
-        {/* Top bar */}
-        <div className="flex h-16 items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full pt-4 px-4">
+      <div className="container mx-auto">
+        <div className="bg-primary rounded-2xl shadow-lg px-4">
+          {/* Top bar */}
+          <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="flex items-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <ShoppingCart className="h-5 w-5 text-primary-foreground" />
+              <div className="flex h-8 w-8 items-center justify-center">
+                <ShoppingCart className="h-6 w-6 text-secondary" />
               </div>
-              <span className="ml-2 text-xl font-bold tracking-tight text-foreground">
+              <span className="ml-2 text-xl font-bold tracking-tight text-white">
                 BotsMart
               </span>
             </div>
           </Link>
 
-          {/* Location selector - Desktop */}
-          <Button
-            variant="ghost"
-            className="hidden items-center gap-2 md:flex"
-          >
-            <MapPin className="h-4 w-4" />
-            <div className="flex flex-col items-start">
-              <span className="text-xs text-muted-foreground">Deliver to</span>
-              <span className="text-sm font-semibold">Gaborone, CBD</span>
-            </div>
-          </Button>
+          {/* Location & Store Selector - Desktop */}
+          <div className="hidden md:block">
+            <LocationStoreSelector />
+          </div>
 
           {/* Search bar - Desktop */}
-          <div className="hidden flex-1 max-w-xl md:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for products, stores..."
-                className="pl-10 pr-4"
-              />
-            </div>
+          <div className="hidden flex-1 max-w-xl md:block" ref={searchRef}>
+            <form onSubmit={handleSearch}>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                <Input
+                  type="search"
+                  placeholder={searchPlaceholder}
+                  className="pl-10 pr-4 rounded-lg bg-white border-0 text-sm h-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearchDropdown(true)}
+                />
+                {showSearchDropdown && (
+                  <SearchDropdown
+                    searchQuery={searchQuery}
+                    onClose={() => setShowSearchDropdown(false)}
+                  />
+                )}
+              </div>
+            </form>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
-            {/* Search icon - Mobile */}
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Search className="h-5 w-5" />
-            </Button>
-
-            {/* User menu */}
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-            </Button>
+          <div className="flex items-center gap-3">
+            {/* Order notification */}
+            <div className="hidden md:flex items-center gap-2 text-white text-sm">
+              <span className="text-secondary">⚡</span>
+              <span>Order now and get it within <span className="text-secondary">15 min!</span></span>
+            </div>
 
             {/* Cart */}
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
+              <button className="relative h-9 w-9 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors">
+                <ShoppingCart className="h-5 w-5 text-primary" />
                 {cartItemCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
-                  >
+                  <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-secondary text-primary text-xs font-semibold flex items-center justify-center">
                     {cartItemCount}
-                  </Badge>
+                  </span>
                 )}
-              </Button>
+              </button>
+            </Link>
+
+            {/* User Profile */}
+            <Link href="/profile">
+              <button className="h-9 w-9 rounded-full bg-white overflow-hidden hover:opacity-90 transition-opacity">
+                <User className="h-full w-full text-primary p-2" />
+              </button>
             </Link>
 
             {/* Mobile menu */}
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
+            <button
+              className="md:hidden text-white"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
         </div>
 
-        {/* Mobile search bar */}
-        <div className="pb-3 md:hidden">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search for products, stores..."
-              className="pl-10 pr-4"
-            />
+          {/* Mobile search bar */}
+          <div className="pb-3 md:hidden">
+            <form onSubmit={handleSearch}>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                <Input
+                  type="search"
+                  placeholder={currentStore ? `Search from ${currentStore.name}` : "Search for Grocery, Stores..."}
+                  className="pl-10 pr-4 rounded-lg bg-white border-0 text-sm h-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearchDropdown(true)}
+                />
+                {showSearchDropdown && (
+                  <SearchDropdown
+                    searchQuery={searchQuery}
+                    onClose={() => setShowSearchDropdown(false)}
+                  />
+                )}
+              </div>
+            </form>
           </div>
         </div>
-
-        {/* Mobile location */}
-        <Button
-          variant="ghost"
-          className="mb-2 flex w-full items-center justify-start gap-2 md:hidden"
-          size="sm"
-        >
-          <MapPin className="h-4 w-4" />
-          <span className="text-sm">Deliver to Gaborone, CBD</span>
-        </Button>
       </div>
+
+      {/* Mobile Menu */}
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </header>
   )
 }

@@ -37,6 +37,7 @@ export interface Product {
   description: string;
   price: number; // in BWP
   originalPrice?: number; // for discounts
+  discount?: number; // discount percentage
   unit: string; // e.g., "kg", "per piece", "500g"
   category: string;
   subcategory?: string;
@@ -118,6 +119,12 @@ export interface Order {
   deliveryFee: number;
   total: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled';
+  customer: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+  };
   deliveryAddress: DeliveryAddress;
   deliverySlot: string;
   paymentMethod: string;

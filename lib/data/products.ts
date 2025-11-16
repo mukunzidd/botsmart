@@ -10,6 +10,8 @@ export const products: Product[] = [
     slug: "fresh-tomatoes",
     description: "Locally grown ripe tomatoes, perfect for salads and cooking",
     price: 24.50,
+    originalPrice: 30.00,
+    discount: 18,
     unit: "per kg",
     category: "Fruits & Vegetables",
     subcategory: "Vegetables",
@@ -39,6 +41,8 @@ export const products: Product[] = [
     slug: "butternut-squash",
     description: "Fresh butternut, great for soups and stews",
     price: 15.50,
+    originalPrice: 22.00,
+    discount: 30,
     unit: "per piece",
     category: "Fruits & Vegetables",
     subcategory: "Vegetables",
@@ -142,7 +146,7 @@ export const products: Product[] = [
     unit: "per kg",
     category: "Meat & Seafood",
     subcategory: "Chicken",
-    image: productImages.p9,
+    image: productImages.p10,
     inStock: true,
     featured: true
   },
@@ -156,7 +160,7 @@ export const products: Product[] = [
     unit: "per kg",
     category: "Meat & Seafood",
     subcategory: "Beef",
-    image: productImages.p9,
+    image: productImages.p11,
     inStock: true,
     featured: false
   },
@@ -170,7 +174,7 @@ export const products: Product[] = [
     unit: "per kg",
     category: "Meat & Seafood",
     subcategory: "Pork",
-    image: productImages.p9,
+    image: productImages.p12,
     inStock: true,
     featured: false
   },
@@ -184,7 +188,7 @@ export const products: Product[] = [
     unit: "per kg",
     category: "Meat & Seafood",
     subcategory: "Sausages",
-    image: productImages.p9,
+    image: productImages.p13,
     inStock: true,
     featured: true
   },
@@ -197,10 +201,12 @@ export const products: Product[] = [
     slug: "fresh-milk",
     description: "Full cream fresh milk 2L",
     price: 28.50,
+    originalPrice: 35.00,
+    discount: 19,
     unit: "2L bottle",
     category: "Dairy & Eggs",
     subcategory: "Milk",
-    image: productImages.p9,
+    image: productImages.p14,
     inStock: true,
     featured: true
   },
@@ -214,7 +220,7 @@ export const products: Product[] = [
     unit: "500g",
     category: "Dairy & Eggs",
     subcategory: "Cheese",
-    image: productImages.p9,
+    image: productImages.p15,
     inStock: true,
     featured: false
   },
@@ -228,7 +234,7 @@ export const products: Product[] = [
     unit: "500g",
     category: "Dairy & Eggs",
     subcategory: "Yogurt",
-    image: productImages.p9,
+    image: productImages.p16,
     inStock: true,
     featured: false
   },
@@ -242,7 +248,7 @@ export const products: Product[] = [
     unit: "500g",
     category: "Dairy & Eggs",
     subcategory: "Butter",
-    image: productImages.p9,
+    image: productImages.p17,
     inStock: true,
     featured: false
   },
@@ -256,7 +262,7 @@ export const products: Product[] = [
     unit: "18 eggs",
     category: "Dairy & Eggs",
     subcategory: "Eggs",
-    image: productImages.p9,
+    image: productImages.p18,
     inStock: true,
     featured: true
   },
@@ -272,7 +278,7 @@ export const products: Product[] = [
     unit: "2kg",
     category: "Pantry Staples",
     subcategory: "Rice & Grains",
-    image: productImages.p9,
+    image: productImages.p19,
     inStock: true,
     featured: true
   },
@@ -286,7 +292,7 @@ export const products: Product[] = [
     unit: "5kg",
     category: "Pantry Staples",
     subcategory: "Flour & Meal",
-    image: productImages.p9,
+    image: productImages.p20,
     inStock: true,
     featured: true
   },
@@ -300,7 +306,7 @@ export const products: Product[] = [
     unit: "2L",
     category: "Pantry Staples",
     subcategory: "Oils",
-    image: productImages.p9,
+    image: productImages.p21,
     inStock: true,
     featured: true
   },
@@ -314,7 +320,7 @@ export const products: Product[] = [
     unit: "2kg",
     category: "Pantry Staples",
     subcategory: "Sugar & Sweeteners",
-    image: productImages.p9,
+    image: productImages.p22,
     inStock: true,
     featured: false
   },
@@ -328,7 +334,7 @@ export const products: Product[] = [
     unit: "500g",
     category: "Pantry Staples",
     subcategory: "Spices & Seasonings",
-    image: productImages.p9,
+    image: productImages.p23,
     inStock: true,
     featured: false
   },
@@ -342,7 +348,7 @@ export const products: Product[] = [
     unit: "500g",
     category: "Pantry Staples",
     subcategory: "Pasta",
-    image: productImages.p9,
+    image: productImages.p24,
     inStock: true,
     featured: false
   },
@@ -356,7 +362,7 @@ export const products: Product[] = [
     unit: "700ml",
     category: "Pantry Staples",
     subcategory: "Sauces",
-    image: productImages.p9,
+    image: productImages.p25,
     inStock: true,
     featured: false
   },
@@ -372,7 +378,7 @@ export const products: Product[] = [
     unit: "6 pack",
     category: "Beverages",
     subcategory: "Water",
-    image: productImages.p9,
+    image: productImages.p26,
     inStock: true,
     featured: true
   },
@@ -386,7 +392,7 @@ export const products: Product[] = [
     unit: "2L",
     category: "Beverages",
     subcategory: "Soft Drinks",
-    image: productImages.p9,
+    image: productImages.p27,
     inStock: true,
     featured: true
   },
@@ -400,7 +406,7 @@ export const products: Product[] = [
     unit: "1L",
     category: "Beverages",
     subcategory: "Juices",
-    image: productImages.p9,
+    image: productImages.p28,
     inStock: true,
     featured: false
   },
@@ -414,7 +420,7 @@ export const products: Product[] = [
     unit: "80 bags",
     category: "Beverages",
     subcategory: "Tea",
-    image: productImages.p9,
+    image: productImages.p29,
     inStock: true,
     featured: false
   },
@@ -428,7 +434,7 @@ export const products: Product[] = [
     unit: "200g",
     category: "Beverages",
     subcategory: "Coffee",
-    image: productImages.p9,
+    image: productImages.p30,
     inStock: true,
     featured: false
   },
@@ -444,7 +450,7 @@ export const products: Product[] = [
     unit: "700g loaf",
     category: "Bakery",
     subcategory: "Bread",
-    image: productImages.p9,
+    image: productImages.p31,
     inStock: true,
     featured: true
   },
@@ -458,7 +464,7 @@ export const products: Product[] = [
     unit: "700g loaf",
     category: "Bakery",
     subcategory: "Bread",
-    image: productImages.p9,
+    image: productImages.p32,
     inStock: true,
     featured: false
   },
@@ -472,7 +478,7 @@ export const products: Product[] = [
     unit: "4 pack",
     category: "Bakery",
     subcategory: "Pastries",
-    image: productImages.p9,
+    image: productImages.p33,
     inStock: true,
     featured: false
   },
@@ -486,7 +492,7 @@ export const products: Product[] = [
     unit: "6 pack",
     category: "Bakery",
     subcategory: "Traditional",
-    image: productImages.p9,
+    image: productImages.p34,
     inStock: true,
     featured: true
   },
@@ -502,7 +508,7 @@ export const products: Product[] = [
     unit: "125g",
     category: "Snacks",
     subcategory: "Chips",
-    image: productImages.p9,
+    image: productImages.p35,
     inStock: true,
     featured: false
   },
@@ -516,7 +522,7 @@ export const products: Product[] = [
     unit: "100g",
     category: "Snacks",
     subcategory: "Dried Meat",
-    image: productImages.p9,
+    image: productImages.p36,
     inStock: true,
     featured: true
   },
@@ -530,7 +536,7 @@ export const products: Product[] = [
     unit: "200g",
     category: "Snacks",
     subcategory: "Biscuits",
-    image: productImages.p9,
+    image: productImages.p37,
     inStock: true,
     featured: false
   },
@@ -544,7 +550,7 @@ export const products: Product[] = [
     unit: "400g",
     category: "Snacks",
     subcategory: "Nuts",
-    image: productImages.p9,
+    image: productImages.p38,
     inStock: true,
     featured: false
   },
@@ -560,7 +566,7 @@ export const products: Product[] = [
     unit: "9 pack",
     category: "Household",
     subcategory: "Paper Products",
-    image: productImages.p9,
+    image: productImages.p39,
     inStock: true,
     featured: false
   },
@@ -574,7 +580,7 @@ export const products: Product[] = [
     unit: "750ml",
     category: "Household",
     subcategory: "Cleaning",
-    image: productImages.p9,
+    image: productImages.p40,
     inStock: true,
     featured: false
   },
@@ -588,7 +594,7 @@ export const products: Product[] = [
     unit: "2kg",
     category: "Household",
     subcategory: "Laundry",
-    image: productImages.p9,
+    image: productImages.p41,
     inStock: true,
     featured: false
   }

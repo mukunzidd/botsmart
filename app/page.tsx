@@ -1,245 +1,239 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { StoreCard } from "@/components/store-card"
+import { ProductCard } from "@/components/product-card"
 import { stores } from "@/lib/data/stores"
+import { products } from "@/lib/data/products"
+import { categories } from "@/lib/data/categories"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Store as StoreIcon, Star, Clock, MapPin } from "lucide-react"
-import { Store, StoreSortType } from "@/types"
+import { ChevronRight } from "lucide-react"
+import { useSessionStore } from "@/lib/store/session-store"
+import { useCartStore } from "@/lib/store/cart-store"
+
+const HERO_IMAGES = [
+  "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400&h=600&fit=crop", // Grocery bag with vegetables
+  "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=1400&h=600&fit=crop", // Fresh vegetables
+  "https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=1400&h=600&fit=crop", // Fresh produce
+]
 
 export default function Home() {
-  const [selectedFilter, setSelectedFilter] = useState<string>("all")
-  const [sortBy, setSortBy] = useState<StoreSortType>("featured")
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const setSelectedStore = useSessionStore((state) => state.setSelectedStore)
+  const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
+  const cartStoreId = useCartStore((state) => state.getStoreId())
 
-  // Filter stores
-  const filteredStores = stores.filter(store => {
-    if (selectedFilter === "all") return true
-    if (selectedFilter === "open") return store.isOpen
-    if (selectedFilter === "featured") return store.featured
-    // Filter by category
-    return store.categories.some(cat =>
-      cat.toLowerCase().includes(selectedFilter.toLowerCase())
-    )
-  })
+  // Prioritize cart store, then session store
+  const currentStoreId = cartStoreId || selectedStoreId
 
-  // Sort stores
-  const sortedStores = [...filteredStores].sort((a, b) => {
-    switch (sortBy) {
-      case "rating":
-        return b.rating - a.rating
-      case "delivery_time":
-        return parseInt(a.deliveryTime) - parseInt(b.deliveryTime)
-      case "distance":
-        return parseFloat(a.distance) - parseFloat(b.distance)
-      case "featured":
-        return (b.featured ? 1 : 0) - (a.featured ? 1 : 0)
-      default:
-        return 0
-    }
-  })
+  // Filter products by selected store if a store is selected
+  const filteredProducts = currentStoreId
+    ? products.filter(p => p.storeId === currentStoreId)
+    : products
 
-  const filters = [
-    { id: "all", label: "All Stores", icon: StoreIcon },
-    { id: "featured", label: "Featured", icon: Star },
-    { id: "open", label: "Open Now", icon: Clock },
-    { id: "supermarket", label: "Supermarkets", icon: StoreIcon },
-    { id: "produce", label: "Fresh Produce", icon: StoreIcon },
-    { id: "butchery", label: "Butchery", icon: StoreIcon },
-  ]
+  // Get featured products for "You might need" section
+  const featuredProducts = filteredProducts.filter(p => p.featured).slice(0, 10)
+
+  // Get weekly best selling
+  const weeklyBestSelling = filteredProducts.slice(0, 10)
+
+  // Rotate hero images every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length)
+    }, 10000) // 10 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 border-b">
-        <div className="container mx-auto px-4 py-10 md:py-14">
-          <div className="grid md:grid-cols-5 gap-8 items-center">
+    <div className="min-h-screen">
+      {/* Hero Banner - With Background Image & Gradient Overlay */}
+      <section className="container mx-auto px-4 mb-16 relative">
+        <div className="rounded-3xl overflow-hidden relative pb-16" style={{minHeight: "360px"}}>
+          {/* Background Images with Fade Transition */}
+          <div className="absolute inset-0 z-0">
+            {HERO_IMAGES.map((image, index) => (
+              <div
+                key={image}
+                className={`absolute inset-0 transition-opacity duration-1000 ${
+                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <Image
+                  src={image}
+                  alt={`Fresh Groceries ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Gradient Overlay - More transparent, softer on left */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-transparent z-[1]" />
+
+          {/* Content */}
+          <div className="relative z-10 grid md:grid-cols-2 items-center" style={{minHeight: "360px"}}>
             {/* Left Content */}
-            <div className="md:col-span-3 max-w-2xl">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4">
-                Shop <span className="text-primary">Fresh</span>
+            <div className="text-white p-8 md:p-12">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight drop-shadow-lg">
+                We bring the store
                 <br />
-                Save More
+                to your door
               </h1>
-              <p className="text-base md:text-lg text-muted-foreground mb-6">
-                Fresh groceries delivered to your door step from your favorite stores. Anytime, Anywhere.
+              <p className="text-white mb-6 text-sm md:text-base max-w-md drop-shadow-md">
+                Get organic produce and sustainably sourced groceries delivery at up to 4% off grocery.
               </p>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>Currently serving Gaborone & Francistown</span>
-              </div>
+              <Button size="lg" className="bg-secondary text-primary hover:bg-secondary/90 font-semibold px-8 rounded-lg shadow-lg">
+                Shop now
+              </Button>
             </div>
 
-            {/* Right - Bento Grid with Parallax */}
-            <div className="hidden md:block md:col-span-2 relative h-[250px] md:h-[300px] overflow-hidden">
-              {/* Column 1 - Slow scroll */}
-              <div className="absolute left-0 w-1/2 pr-1.5 animate-scroll-slow">
-                <div className="flex flex-col gap-3">
-                  {/* Large item */}
-                  <div className="relative h-40 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=300&h=400&fit=crop"
-                      alt="Fresh Vegetables"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                  {/* Small item */}
-                  <div className="relative h-24 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop"
-                      alt="Bananas"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                  {/* Medium item */}
-                  <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=200&h=200&fit=crop"
-                      alt="Apples"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                  {/* Duplicate for loop */}
-                  <div className="relative h-40 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=300&h=400&fit=crop"
-                      alt="Fresh Vegetables"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                </div>
-              </div>
+            {/* Right - Empty space to show background image */}
+            <div className="hidden md:block h-full" />
+          </div>
 
-              {/* Column 2 - Fast scroll */}
-              <div className="absolute right-0 w-1/2 pl-1.5 animate-scroll-fast">
-                <div className="flex flex-col gap-3">
-                  {/* Small item */}
-                  <div className="relative h-28 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=200&h=200&fit=crop"
-                      alt="Fresh Produce Market"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                  {/* Large item */}
-                  <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=200&h=300&fit=crop"
-                      alt="Oranges"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                  {/* Medium item */}
-                  <div className="relative h-32 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1488477181946-6428a0291777?w=200&h=200&fit=crop"
-                      alt="Yogurt"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                  {/* Duplicate for loop */}
-                  <div className="relative h-28 rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=200&h=200&fit=crop"
-                      alt="Fresh Produce Market"
-                      fill
-                      className="object-cover"
-                      sizes="200px"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Decorative vegetable icons background */}
+          <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden z-[2]">
+            <div className="absolute bottom-20 left-8 text-7xl">🥬</div>
+            <div className="absolute bottom-28 left-32 text-6xl">🥕</div>
+            <div className="absolute top-16 left-24 text-5xl">🌽</div>
+          </div>
+
+          {/* Curved Bottom Edge */}
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-r from-primary/85 via-primary/60 to-transparent z-[3]">
+            <svg className="absolute bottom-0 w-full h-20" preserveAspectRatio="none" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0,80 Q360,0 720,40 T1440,80 L1440,80 L0,80 Z" className="fill-background" />
+            </svg>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Filters */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold">Browse Stores</h2>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground hidden sm:inline">
-                Sort by:
-              </span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as StoreSortType)}
-                className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="featured">Featured</option>
-                <option value="rating">Rating</option>
-                <option value="delivery_time">Delivery Time</option>
-                <option value="distance">Distance</option>
-              </select>
+      {/* Conditional: Show Stores OR Categories based on selection */}
+      {!currentStoreId ? (
+        /* Stores Strip - Shown when NO store is selected */
+        <section className="container mx-auto px-4 mb-12 -mt-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Shop by Store</h2>
+            <p className="text-gray-600 text-sm mt-1">Choose your preferred store</p>
+          </div>
+          <div className="relative">
+            <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
+              {stores.map((store) => (
+                <Link
+                  key={store.id}
+                  href={`/store/${store.slug}`}
+                  onClick={() => setSelectedStore(store.id)}
+                  className="flex flex-col min-w-[160px] cursor-pointer group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex-shrink-0"
+                >
+                  {/* Top Image Section */}
+                  <div className="w-full h-24 relative bg-gradient-to-br from-primary/5 to-secondary/5">
+                    <Image
+                      src={store.image}
+                      alt={store.name}
+                      fill
+                      className="object-cover"
+                      sizes="160px"
+                    />
+                    {/* Store Logo Overlay */}
+                    <div className="absolute bottom-2 left-3 w-12 h-12 rounded-lg overflow-hidden bg-white shadow-md border-2 border-white">
+                      <Image
+                        src={store.logo}
+                        alt={`${store.name} logo`}
+                        fill
+                        className="object-contain p-1"
+                        sizes="48px"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bottom Info Section */}
+                  <div className="p-4 pt-3">
+                    <p className="text-base font-semibold text-gray-900 mb-1 line-clamp-1">{store.name}</p>
+                    <p className="text-xs text-gray-500">{store.deliveryTime}</p>
+                  </div>
+                </Link>
+              ))}
+
+              {/* Sticky See All Button */}
+              <div className="flex-shrink-0 sticky right-0 ml-auto">
+                <Link
+                  href="/search"
+                  className="flex flex-col items-center justify-center gap-3 min-w-[140px] h-full cursor-pointer group bg-secondary rounded-2xl p-6 shadow-md hover:shadow-lg transition-all"
+                >
+                  <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm">
+                    <ChevronRight className="h-7 w-7 text-primary" />
+                  </div>
+                  <p className="text-base font-bold text-primary">See all</p>
+                </Link>
+              </div>
             </div>
           </div>
-
-          {/* Filter chips */}
-          <div className="flex flex-wrap gap-2">
-            {filters.map((filter) => {
-              const Icon = filter.icon
-              return (
-                <Button
-                  key={filter.id}
-                  variant={selectedFilter === filter.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedFilter(filter.id)}
-                  className="gap-2"
-                >
-                  <Icon className="h-4 w-4" />
-                  {filter.label}
-                </Button>
-              )
-            })}
+        </section>
+      ) : (
+        /* Categories Section - Shown when a store IS selected */
+        <section className="container mx-auto px-4 mb-12 -mt-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Shop by Category</h2>
+            <p className="text-gray-600 text-sm mt-1">Explore products from {stores.find(s => s.id === currentStoreId)?.name}</p>
           </div>
+          <div className="relative">
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/search?category=${category.slug}`}
+                  className="flex flex-col items-center min-w-[140px] cursor-pointer group flex-shrink-0"
+                >
+                  <div className="w-32 h-32 relative rounded-2xl overflow-hidden mb-3 bg-gradient-to-br from-primary/5 to-secondary/10 flex items-center justify-center hover:scale-105 transition-transform">
+                    <div className="text-6xl">{category.icon}</div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-gray-900 mb-1">{category.name}</p>
+                    <p className="text-xs text-gray-500">{category.subcategories?.[0] || ''}</p>
+                  </div>
+                </Link>
+              ))}
+
+              {/* See All Button */}
+              <div className="flex-shrink-0 sticky right-0 ml-auto">
+                <Link
+                  href="/search"
+                  className="flex flex-col items-center justify-center min-w-[120px] cursor-pointer group"
+                >
+                  <div className="w-32 h-32 rounded-2xl bg-secondary flex items-center justify-center mb-3 hover:scale-105 transition-transform">
+                    <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center">
+                      <ChevronRight className="h-7 w-7 text-primary" />
+                    </div>
+                  </div>
+                  <p className="text-sm font-bold text-primary">See all</p>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* You might need - Exact Match */}
+      <section className="container mx-auto px-4 mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold text-gray-900">You might need</h2>
+          <Link href="/search" className="text-sm text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1">
+            See more <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
 
-        {/* Store count */}
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            {sortedStores.length} {sortedStores.length === 1 ? "store" : "stores"} available
-          </p>
-        </div>
-
-        {/* Stores Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedStores.map((store) => (
-            <StoreCard key={store.id} store={store} />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {featuredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
-
-        {/* Empty state */}
-        {sortedStores.length === 0 && (
-          <div className="text-center py-12">
-            <StoreIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No stores found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your filters
-            </p>
-            <Button onClick={() => setSelectedFilter("all")}>
-              Clear filters
-            </Button>
-          </div>
-        )}
-      </div>
+      </section>
     </div>
   )
 }
