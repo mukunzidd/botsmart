@@ -8,13 +8,24 @@ import { useCartStore } from "@/lib/store/cart-store"
 import { stores } from "@/lib/data/stores"
 import { useEffect, useState } from "react"
 
+const FUN_FACTS = [
+  "Did you know we deliver in 15 minutes? Start shopping and see for yourself! ⚡",
+  "Fun fact: Fresh groceries taste better when delivered to your door! 🥬",
+  "Did you know? You can shop from multiple stores on BotsMart! 🛒",
+  "Pro tip: Save your favorite stores for faster shopping next time! ⭐",
+  "Did you know? We have the freshest produce in Gaborone! 🍎",
+  "Fun fact: You can track your order in real-time! 📍",
+]
+
 export default function NotFound() {
   const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
   const cartStoreId = useCartStore((state) => state.getStoreId())
   const [mounted, setMounted] = useState(false)
+  const [randomFact, setRandomFact] = useState("")
 
   useEffect(() => {
     setMounted(true)
+    setRandomFact(FUN_FACTS[Math.floor(Math.random() * FUN_FACTS.length)])
   }, [])
 
   // Prioritize cart store, then session store
@@ -24,6 +35,15 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 pb-20 md:pb-8">
       <div className="max-w-lg w-full text-center">
+        {/* Fun fact - At the top */}
+        {mounted && randomFact && (
+          <div className="mb-8 p-4 bg-secondary/10 rounded-xl">
+            <p className="text-sm text-gray-600">
+              {randomFact}
+            </p>
+          </div>
+        )}
+
         {/* Large 404 */}
         <div className="mb-8">
           <h1 className="text-8xl md:text-9xl font-bold text-primary/20 mb-4">404</h1>
@@ -69,14 +89,6 @@ export default function NotFound() {
               </Button>
             </Link>
           )}
-        </div>
-
-        {/* Fun fact */}
-        <div className="mt-12 p-4 bg-secondary/10 rounded-xl">
-          <p className="text-sm text-gray-600">
-            <span className="font-semibold text-primary">Fun fact:</span> Did you know we deliver in 15 minutes?
-            Start shopping and see for yourself! ⚡
-          </p>
         </div>
       </div>
     </div>
