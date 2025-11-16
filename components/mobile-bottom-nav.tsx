@@ -4,15 +4,21 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useCartStore } from "@/lib/store/cart-store"
 import { Home, Search, ShoppingCart, Package } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export function MobileBottomNav() {
   const pathname = usePathname()
   const cartItemCount = useCartStore((state) => state.getTotalItems())
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
     { href: "/search", label: "Search", icon: Search, isSearch: true },
-    { href: "/cart", label: "Cart", icon: ShoppingCart, badge: cartItemCount > 0 ? cartItemCount : undefined },
+    { href: "/cart", label: "Cart", icon: ShoppingCart, badge: mounted && cartItemCount > 0 ? cartItemCount : undefined },
     { href: "/profile/orders", label: "Orders", icon: Package },
   ]
 
