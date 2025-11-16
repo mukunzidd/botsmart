@@ -86,85 +86,65 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
   }
 
   if (searchQuery.length === 0) {
+    // Get real featured products for recommended searches
+    const featuredProduct = products.find(p => p.featured) || products[0]
+
+    // Get popular products from different stores
+    const popularProducts = [
+      products.find(p => p.name.toLowerCase().includes('tomato')),
+      products.find(p => p.name.toLowerCase().includes('banana')),
+      products.find(p => p.name.toLowerCase().includes('milk')),
+      products.find(p => p.name.toLowerCase().includes('bread')),
+      products.find(p => p.name.toLowerCase().includes('chicken')),
+      products.find(p => p.name.toLowerCase().includes('chips')),
+    ].filter(Boolean) as typeof products
+
     // Recommended searches (when search is empty or just clicked)
     return (
       <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl p-6 z-50 max-w-md">
-        <h3 className="font-semibold text-gray-900 mb-4">Recommended searches</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">Recommended</h3>
 
         <div className="space-y-3">
-          <Link href="/search?q=beetroot" className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-              <span className="text-xl">🥬</span>
+          <Link href={`/product/${featuredProduct.slug}`} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+            <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+              <Image
+                src={featuredProduct.image}
+                alt={featuredProduct.name}
+                fill
+                className="object-contain p-1"
+                sizes="40px"
+              />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Beetroot (Local shop)</p>
-              <p className="text-xs text-gray-500">06.<sup>99P</sup></p>
+              <p className="text-sm font-medium text-gray-900">{featuredProduct.name}</p>
+              <p className="text-xs text-gray-500">{Math.floor(featuredProduct.price)}.<sup>{featuredProduct.price.toFixed(2).split('.')[1]}P</sup></p>
             </div>
           </Link>
         </div>
 
-        <h3 className="font-semibold text-gray-900 mt-6 mb-4">Popular search</h3>
+        <h3 className="font-semibold text-gray-900 mt-6 mb-4">Popular products</h3>
 
         <div className="grid grid-cols-2 gap-3">
-          <Link href="/search?q=beetroot" className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <span className="text-xl">🥬</span>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-900">Beetroot (Local shop)</p>
-              <p className="text-xs text-gray-500">17.<sup>09P</sup></p>
-            </div>
-          </Link>
-
-          <Link href="/search?q=avocado" className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <span className="text-xl">🥑</span>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-900">Italian Avocado</p>
-              <p className="text-xs text-gray-500">12.<sup>9P</sup></p>
-            </div>
-          </Link>
-
-          <Link href="/search?q=szam" className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <span className="text-xl">🥫</span>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-900">Szam amm (process)</p>
-              <p className="text-xs text-gray-500">16.<sup>04P</sup></p>
-            </div>
-          </Link>
-
-          <Link href="/search?q=meat" className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <span className="text-xl">🥩</span>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-900">Frozen boneless meat</p>
-              <p className="text-xs text-gray-500">18.<sup>16P</sup></p>
-            </div>
-          </Link>
-
-          <Link href="/search?q=sprite" className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <span className="text-xl">🥤</span>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-900">Cold drinks (Sprite)</p>
-              <p className="text-xs text-gray-500">20.<sup>26P</sup></p>
-            </div>
-          </Link>
-
-          <Link href="/search?q=chips" className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <span className="text-xl">🍟</span>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-900">Lays chips (Bacon)</p>
-              <p className="text-xs text-gray-500">21.<sup>75P</sup></p>
-            </div>
-          </Link>
+          {popularProducts.map((product) => {
+            const productStore = stores.find(s => s.id === product.storeId)
+            return (
+              <Link key={product.id} href={`/product/${product.slug}`} className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                <div className="w-8 h-8 relative rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-contain p-0.5"
+                    sizes="32px"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-gray-900 truncate">{product.name}</p>
+                  <p className="text-xs text-gray-500">{Math.floor(product.price)}.<sup>{product.price.toFixed(2).split('.')[1]}P</sup></p>
+                </div>
+              </Link>
+            )
+          })}
         </div>
       </div>
     )
