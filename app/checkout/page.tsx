@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useCartStore } from "@/lib/store/cart-store"
-import { useOrderStore } from "@/lib/store/order-store"
-import { useSessionStore } from "@/lib/store/session-store"
-import { stores } from "@/lib/data/stores"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useCartStore } from "@/lib/store/cart-store";
+import { useOrderStore } from "@/lib/store/order-store";
+import { useSessionStore } from "@/lib/store/session-store";
+import { stores } from "@/lib/data/stores";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Form,
   FormControl,
@@ -21,10 +21,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { ChevronLeft, CreditCard, Wallet, Building2, MapPin, Edit, ChevronDown, ChevronUp, Plus, Minus, Tag } from "lucide-react"
-import { PaymentModal } from "@/components/payment-modal"
-import { AlertDialog } from "@/components/alert-dialog"
+} from "@/components/ui/form";
+import {
+  ChevronLeft,
+  CreditCard,
+  Wallet,
+  Building2,
+  MapPin,
+  Edit,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Minus,
+  Tag,
+} from "lucide-react";
+import { PaymentModal } from "@/components/payment-modal";
+import { AlertDialog } from "@/components/alert-dialog";
+import { DeliveryAddressModal } from "@/components/delivery-address-modal";
 
 const formSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -35,9 +48,9 @@ const formSchema = z.object({
   city: z.string().min(2, "Please enter your city"),
   area: z.string().min(2, "Please enter your area"),
   instructions: z.string().optional(),
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 const paymentMethods = [
   {
@@ -58,22 +71,32 @@ const paymentMethods = [
     icon: Building2,
     description: "Direct bank transfer",
   },
-]
+];
 
 export default function CheckoutPage() {
-  const router = useRouter()
-  const { items, getTotalPrice, clearCart, getStoreId, updateQuantity } = useCartStore()
-  const { addOrder } = useOrderStore()
-  const deliveryLocation = useSessionStore((state) => state.deliveryLocation)
-  const [selectedPayment, setSelectedPayment] = useState("online")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [orderPlaced, setOrderPlaced] = useState(false)
-  const [expandedStores, setExpandedStores] = useState<Record<string, boolean>>({})
-  const [promoCode, setPromoCode] = useState("")
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null)
-  const [showPaymentModal, setShowPaymentModal] = useState(false)
-  const [showAlert, setShowAlert] = useState(false)
-  const [alertMessage, setAlertMessage] = useState("")
+  const router = useRouter();
+  const { items, getTotalPrice, clearCart, getStoreId, updateQuantity } =
+    useCartStore();
+  const { addOrder } = useOrderStore();
+  const deliveryLocation = useSessionStore((state) => state.deliveryLocation);
+  const setDeliveryLocation = useSessionStore(
+    (state) => state.setDeliveryLocation
+  );
+  const [selectedPayment, setSelectedPayment] = useState("online");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [expandedStores, setExpandedStores] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    discount: number;
+  } | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAddressModal, setShowAddressModal] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -87,61 +110,63 @@ export default function CheckoutPage() {
       area: "",
       instructions: "",
     },
-  })
+  });
 
-  const currentStoreId = getStoreId()
-  const currentStore = currentStoreId ? stores.find(s => s.id === currentStoreId) : null
+  const currentStoreId = getStoreId();
+  const currentStore = currentStoreId
+    ? stores.find((s) => s.id === currentStoreId)
+    : null;
 
-  const totalPrice = getTotalPrice()
-  const deliveryFee = 16.0
-  const discount = appliedPromo?.discount || 0
-  const taxes = 10.0
-  const finalTotal = totalPrice + deliveryFee - discount + taxes
+  const totalPrice = getTotalPrice();
+  const deliveryFee = 16.0;
+  const discount = appliedPromo?.discount || 0;
+  const taxes = 10.0;
+  const finalTotal = totalPrice + deliveryFee - discount + taxes;
 
   // Group items by store
   const itemsByStore = items.reduce((acc, item) => {
-    const storeId = item.product.storeId
+    const storeId = item.product.storeId;
     if (!acc[storeId]) {
-      acc[storeId] = []
+      acc[storeId] = [];
     }
-    acc[storeId].push(item)
-    return acc
-  }, {} as Record<string, typeof items>)
+    acc[storeId].push(item);
+    return acc;
+  }, {} as Record<string, typeof items>);
 
   const toggleStoreExpand = (storeId: string) => {
-    setExpandedStores(prev => ({
+    setExpandedStores((prev) => ({
       ...prev,
-      [storeId]: !prev[storeId]
-    }))
-  }
+      [storeId]: !prev[storeId],
+    }));
+  };
 
   const handleApplyPromo = () => {
     if (promoCode.toLowerCase() === "save48") {
-      setAppliedPromo({ code: promoCode, discount: 48.0 })
+      setAppliedPromo({ code: promoCode, discount: 48.0 });
     } else {
-      setAlertMessage("Invalid promo code. Please check and try again.")
-      setShowAlert(true)
+      setAlertMessage("Invalid promo code. Please check and try again.");
+      setShowAlert(true);
     }
-  }
+  };
 
   // Redirect if cart is empty (but not if we just placed an order)
   useEffect(() => {
     if (items.length === 0 && !orderPlaced) {
-      router.push("/cart")
+      router.push("/cart");
     }
-  }, [items.length, router, orderPlaced])
+  }, [items.length, router, orderPlaced]);
 
   if (items.length === 0 && !orderPlaced) {
-    return null
+    return null;
   }
 
   const handleConfirmOrder = () => {
-    setIsSubmitting(true)
-    setShowPaymentModal(true)
-  }
+    setIsSubmitting(true);
+    setShowPaymentModal(true);
+  };
 
   const handlePaymentComplete = () => {
-    setOrderPlaced(true)
+    setOrderPlaced(true);
 
     // Create order with default customer info
     const order = {
@@ -158,11 +183,11 @@ export default function CheckoutPage() {
       },
       deliveryAddress: {
         fullName: "Guest Customer",
-        phone: "+267 71234567",
-        street: "Block B, Road 3",
+        phone: deliveryLocation.phone || "+267 71234567",
+        street: deliveryLocation.street || "Block B, Road 3",
         city: deliveryLocation.city,
         area: deliveryLocation.area,
-        instructions: "",
+        instructions: deliveryLocation.instructions || "",
       },
       deliverySlot: "ASAP",
       paymentMethod: selectedPayment,
@@ -172,17 +197,17 @@ export default function CheckoutPage() {
       status: "pending" as const,
       createdAt: new Date().toISOString(),
       estimatedDelivery: new Date(Date.now() + 45 * 60000).toISOString(), // 45 minutes
-    }
+    };
 
     // Add order to store
-    addOrder(order)
+    addOrder(order);
 
     // Clear cart
-    clearCart()
+    clearCart();
 
     // Redirect to confirmation
-    router.push(`/order-confirmation/${order.id}`)
-  }
+    router.push(`/order-confirmation/${order.id}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -193,43 +218,69 @@ export default function CheckoutPage() {
             {/* Delivery Information */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-primary">Delivery information</h2>
-                <button className="flex items-center gap-1 text-orange-500 hover:text-orange-600 text-sm font-medium">
+                <h2 className="text-xl font-bold text-primary">
+                  Delivery information
+                </h2>
+                <button
+                  onClick={() => setShowAddressModal(true)}
+                  className="flex items-center gap-1 text-orange-500 hover:text-orange-600 text-sm font-medium transition-colors"
+                >
                   <Edit className="h-4 w-4" />
                   Edit
                 </button>
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
                   <MapPin className="h-6 w-6 text-secondary" />
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900 mb-1">Delivery to</p>
-                  <p className="text-sm text-gray-600">Address: (+62) 854-2645-1999</p>
-                  <p className="text-sm text-gray-600">
-                    {deliveryLocation.city}, {deliveryLocation.area}, Block B, Road: 3, California, USA
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 mb-1">
+                    Delivery to
                   </p>
+                  {deliveryLocation.phone && (
+                    <p className="text-sm text-gray-600 mb-1">
+                      Phone: {deliveryLocation.phone}
+                    </p>
+                  )}
+                  {deliveryLocation.street && (
+                    <p className="text-sm text-gray-600 mb-1">
+                      {deliveryLocation.street}
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-600">
+                    {deliveryLocation.area}, {deliveryLocation.city}
+                  </p>
+                  {deliveryLocation.instructions && (
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      Note: {deliveryLocation.instructions}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Review items by store */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
-              <h2 className="text-xl font-bold text-primary mb-6">Review item by store</h2>
+              <h2 className="text-xl font-bold text-primary mb-6">
+                Review item by store
+              </h2>
 
               <div className="space-y-4">
                 {Object.entries(itemsByStore).map(([storeId, storeItems]) => {
-                  const store = stores.find(s => s.id === storeId)
-                  const isExpanded = expandedStores[storeId]
+                  const store = stores.find((s) => s.id === storeId);
+                  const isExpanded = expandedStores[storeId];
 
                   return (
-                    <div key={storeId} className="border-2 border-primary/10 rounded-xl overflow-hidden">
+                    <div
+                      key={storeId}
+                      className="border-2 border-primary/10 rounded-xl overflow-hidden"
+                    >
                       {/* Store Header */}
                       <div className="p-4 bg-gradient-to-r from-primary/5 to-secondary/10">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 flex-1">
-                            <div className="w-12 h-12 rounded-xl bg-white shadow-sm border-2 border-white flex items-center justify-center overflow-hidden flex-shrink-0">
+                            <div className="w-12 h-12 rounded-xl bg-white shadow-sm border-2 border-white flex items-center justify-center overflow-hidden shrink-0">
                               {store && (
                                 <Image
                                   src={store.logo}
@@ -241,8 +292,12 @@ export default function CheckoutPage() {
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-bold text-primary truncate">{store?.name}</p>
-                              <p className="text-xs text-gray-600 font-medium">Delivery in {store?.deliveryTime}</p>
+                              <p className="font-bold text-primary truncate">
+                                {store?.name}
+                              </p>
+                              <p className="text-xs text-gray-600 font-medium">
+                                Delivery in {store?.deliveryTime}
+                              </p>
                             </div>
                           </div>
                           <button
@@ -262,8 +317,11 @@ export default function CheckoutPage() {
                       {isExpanded && (
                         <div className="p-4 space-y-4">
                           {storeItems.map((item) => (
-                            <div key={item.product.id} className="flex items-center gap-4">
-                              <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                            <div
+                              key={item.product.id}
+                              className="flex items-center gap-4"
+                            >
+                              <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-100 shrink-0">
                                 <Image
                                   src={item.product.image}
                                   alt={item.product.name}
@@ -273,20 +331,35 @@ export default function CheckoutPage() {
                                 />
                               </div>
                               <div className="flex-1">
-                                <p className="font-semibold text-gray-900">{item.product.name}</p>
-                                <p className="text-xs text-gray-500">{item.product.unit}</p>
+                                <p className="font-semibold text-gray-900">
+                                  {item.product.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {item.product.unit}
+                                </p>
                                 <div className="flex items-baseline gap-1 mt-1">
                                   <span className="text-lg font-bold text-gray-900">
                                     {Math.floor(item.product.price)}
                                   </span>
                                   <span className="text-sm font-medium text-gray-900">
-                                    .{item.product.price.toFixed(2).split('.')[1]}$
+                                    .
+                                    {
+                                      item.product.price
+                                        .toFixed(2)
+                                        .split(".")[1]
+                                    }
+                                    $
                                   </span>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
                                 <button
-                                  onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                  onClick={() =>
+                                    updateQuantity(
+                                      item.product.id,
+                                      item.quantity - 1
+                                    )
+                                  }
                                   className="h-6 w-6 rounded-full bg-white flex items-center justify-center hover:bg-gray-200"
                                 >
                                   <Minus className="h-3 w-3" />
@@ -295,7 +368,12 @@ export default function CheckoutPage() {
                                   {item.quantity}
                                 </span>
                                 <button
-                                  onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                  onClick={() =>
+                                    updateQuantity(
+                                      item.product.id,
+                                      item.quantity + 1
+                                    )
+                                  }
                                   className="h-6 w-6 rounded-full bg-white flex items-center justify-center hover:bg-gray-200"
                                 >
                                   <Plus className="h-3 w-3" />
@@ -309,7 +387,9 @@ export default function CheckoutPage() {
                             <button className="flex items-center justify-between w-full text-sm text-gray-600 hover:text-primary">
                               <span className="flex items-center gap-2">
                                 <span>↻ Replace with</span>
-                                <span className="font-medium text-gray-900">Loblaws</span>
+                                <span className="font-medium text-gray-900">
+                                  Loblaws
+                                </span>
                               </span>
                               <ChevronDown className="h-4 w-4" />
                             </button>
@@ -322,16 +402,21 @@ export default function CheckoutPage() {
                         <div className="p-4 flex items-center gap-2">
                           {storeItems.slice(0, 6).map((item) => (
                             <div key={item.product.id} className="text-2xl">
-                              {item.product.category.includes('Vegetable') ? '🥬' :
-                               item.product.category.includes('Meat') ? '🥩' :
-                               item.product.category.includes('Dairy') ? '🥛' :
-                               item.product.category.includes('Beverage') ? '🥤' : '🛒'}
+                              {item.product.category.includes("Vegetable")
+                                ? "🥬"
+                                : item.product.category.includes("Meat")
+                                ? "🥩"
+                                : item.product.category.includes("Dairy")
+                                ? "🥛"
+                                : item.product.category.includes("Beverage")
+                                ? "🥤"
+                                : "🛒"}
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -340,12 +425,24 @@ export default function CheckoutPage() {
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
-              <h2 className="text-xl font-bold mb-6 text-primary">Order summary</h2>
+              <h2 className="text-xl font-bold mb-6 text-primary">
+                Order summary
+              </h2>
 
               {/* Payment Methods */}
               <div className="space-y-3 mb-6">
-                <p className="text-sm font-semibold text-gray-700 mb-3">Payment Method</p>
-                <label className="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all hover:border-primary/50" style={{borderColor: selectedPayment === "online" ? "var(--color-primary)" : "var(--color-gray-200)"}}>
+                <p className="text-sm font-semibold text-gray-700 mb-3">
+                  Payment Method
+                </p>
+                <label
+                  className="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all hover:border-primary/50"
+                  style={{
+                    borderColor:
+                      selectedPayment === "online"
+                        ? "var(--color-primary)"
+                        : "var(--color-gray-200)",
+                  }}
+                >
                   <input
                     type="radio"
                     name="payment"
@@ -355,14 +452,26 @@ export default function CheckoutPage() {
                     className="w-5 h-5 text-primary"
                   />
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">Online Payment</p>
-                    <p className="text-xs text-gray-500">Pay securely with card or mobile money</p>
+                    <p className="font-semibold text-gray-900">
+                      Online Payment
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Pay securely with card or mobile money
+                    </p>
                   </div>
                   {selectedPayment === "online" && (
                     <div className="w-2 h-2 rounded-full bg-secondary"></div>
                   )}
                 </label>
-                <label className="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all hover:border-primary/50" style={{borderColor: selectedPayment === "cash" ? "var(--color-primary)" : "var(--color-gray-200)"}}>
+                <label
+                  className="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all hover:border-primary/50"
+                  style={{
+                    borderColor:
+                      selectedPayment === "cash"
+                        ? "var(--color-primary)"
+                        : "var(--color-gray-200)",
+                  }}
+                >
                   <input
                     type="radio"
                     name="payment"
@@ -372,14 +481,26 @@ export default function CheckoutPage() {
                     className="w-5 h-5 text-primary"
                   />
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">Cash on Delivery</p>
-                    <p className="text-xs text-gray-500">Pay with cash when you receive</p>
+                    <p className="font-semibold text-gray-900">
+                      Cash on Delivery
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Pay with cash when you receive
+                    </p>
                   </div>
                   {selectedPayment === "cash" && (
                     <div className="w-2 h-2 rounded-full bg-secondary"></div>
                   )}
                 </label>
-                <label className="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all hover:border-primary/50" style={{borderColor: selectedPayment === "pos" ? "var(--color-primary)" : "var(--color-gray-200)"}}>
+                <label
+                  className="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all hover:border-primary/50"
+                  style={{
+                    borderColor:
+                      selectedPayment === "pos"
+                        ? "var(--color-primary)"
+                        : "var(--color-gray-200)",
+                  }}
+                >
                   <input
                     type="radio"
                     name="payment"
@@ -389,8 +510,12 @@ export default function CheckoutPage() {
                     className="w-5 h-5 text-primary"
                   />
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">POS on Delivery</p>
-                    <p className="text-xs text-gray-500">Pay with card at delivery</p>
+                    <p className="font-semibold text-gray-900">
+                      POS on Delivery
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Pay with card at delivery
+                    </p>
                   </div>
                   {selectedPayment === "pos" && (
                     <div className="w-2 h-2 rounded-full bg-secondary"></div>
@@ -416,7 +541,9 @@ export default function CheckoutPage() {
                   </Button>
                 </div>
                 {appliedPromo && (
-                  <p className="text-xs text-green-600 mt-2">✓ Promo code applied: {appliedPromo.code}</p>
+                  <p className="text-xs text-green-600 mt-2">
+                    ✓ Promo code applied: {appliedPromo.code}
+                  </p>
                 )}
               </div>
 
@@ -428,12 +555,16 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Delivery fee</span>
-                  <span className="font-medium">P {deliveryFee.toFixed(2)}</span>
+                  <span className="font-medium">
+                    P {deliveryFee.toFixed(2)}
+                  </span>
                 </div>
                 {appliedPromo && (
                   <div className="flex justify-between text-sm text-green-600">
                     <span>Coupon Discount</span>
-                    <span className="font-medium">-P {discount.toFixed(2)}</span>
+                    <span className="font-medium">
+                      -P {discount.toFixed(2)}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
@@ -451,7 +582,7 @@ export default function CheckoutPage() {
                       {Math.floor(finalTotal)}
                     </span>
                     <span className="font-bold text-xl text-primary">
-                      .{finalTotal.toFixed(2).split('.')[1]}
+                      .{finalTotal.toFixed(2).split(".")[1]}
                     </span>
                     <span className="text-base text-gray-600">P</span>
                   </div>
@@ -489,12 +620,16 @@ export default function CheckoutPage() {
               {/* Security info */}
               <div className="mt-6 pt-6 border-t">
                 <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
-                  <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
                     <Tag className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-900 mb-1">Safe & Secure Payment</p>
-                    <p className="text-xs text-gray-600">Your payment information is encrypted and secure</p>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">
+                      Safe & Secure Payment
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Your payment information is encrypted and secure
+                    </p>
                   </div>
                 </div>
               </div>
@@ -519,6 +654,28 @@ export default function CheckoutPage() {
         type="error"
         title="Invalid Promo Code"
       />
+
+      {/* Delivery Address Modal */}
+      <DeliveryAddressModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        currentAddress={{
+          street: deliveryLocation.street || "",
+          city: deliveryLocation.city,
+          area: deliveryLocation.area,
+          phone: deliveryLocation.phone,
+          instructions: deliveryLocation.instructions,
+        }}
+        onSave={(address) => {
+          setDeliveryLocation({
+            city: address.city,
+            area: address.area,
+            street: address.street,
+            phone: address.phone,
+            instructions: address.instructions,
+          });
+        }}
+      />
     </div>
-  )
+  );
 }

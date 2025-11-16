@@ -1,22 +1,30 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface SessionStore {
-  selectedStoreId: string | null
+  selectedStoreId: string | null;
   deliveryLocation: {
-    city: string
-    area: string
-    address?: string
-  }
-  setSelectedStore: (storeId: string | null) => void
-  setDeliveryLocation: (location: { city: string; area: string; address?: string }) => void
-  clearSession: () => void
+    city: string;
+    area: string;
+    street?: string;
+    phone?: string;
+    instructions?: string;
+  };
+  setSelectedStore: (storeId: string | null) => void;
+  setDeliveryLocation: (location: {
+    city: string;
+    area: string;
+    street?: string;
+    phone?: string;
+    instructions?: string;
+  }) => void;
+  clearSession: () => void;
 }
 
 const DEFAULT_LOCATION = {
-  city: 'Gaborone',
-  area: 'CBD',
-}
+  city: "Gaborone",
+  area: "CBD",
+};
 
 export const useSessionStore = create<SessionStore>()(
   persist(
@@ -28,14 +36,15 @@ export const useSessionStore = create<SessionStore>()(
 
       setDeliveryLocation: (location) => set({ deliveryLocation: location }),
 
-      clearSession: () => set({
-        selectedStoreId: null,
-        deliveryLocation: DEFAULT_LOCATION
-      }),
+      clearSession: () =>
+        set({
+          selectedStoreId: null,
+          deliveryLocation: DEFAULT_LOCATION,
+        }),
     }),
     {
-      name: 'botsmart-session-storage',
+      name: "botsmart-session-storage",
       storage: createJSONStorage(() => localStorage),
     }
   )
-)
+);
