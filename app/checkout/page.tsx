@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form"
 import { ChevronLeft, CreditCard, Wallet, Building2, MapPin, Edit, ChevronDown, ChevronUp, Plus, Minus, Tag } from "lucide-react"
 import { PaymentModal } from "@/components/payment-modal"
+import { AlertDialog } from "@/components/alert-dialog"
 
 const formSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -71,6 +72,8 @@ export default function CheckoutPage() {
   const [promoCode, setPromoCode] = useState("")
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMessage, setAlertMessage] = useState("")
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -116,7 +119,8 @@ export default function CheckoutPage() {
     if (promoCode.toLowerCase() === "save48") {
       setAppliedPromo({ code: promoCode, discount: 48.0 })
     } else {
-      alert("Invalid promo code")
+      setAlertMessage("Invalid promo code. Please check and try again.")
+      setShowAlert(true)
     }
   }
 
@@ -505,6 +509,15 @@ export default function CheckoutPage() {
         paymentMethod={selectedPayment}
         amount={finalTotal}
         onComplete={handlePaymentComplete}
+      />
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        message={alertMessage}
+        type="error"
+        title="Invalid Promo Code"
       />
     </div>
   )

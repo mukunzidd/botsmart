@@ -17,7 +17,7 @@ interface MobileStoreSelectorProps {
 export function MobileStoreSelector({ isOpen, onClose }: MobileStoreSelectorProps) {
   const router = useRouter()
   const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [pendingStore, setPendingStore] = useState<{ id: string; slug: string } | null>(null)
+  const [pendingStore, setPendingStore] = useState<{ id: string | null; slug: string } | null>(null)
   const setSelectedStore = useSessionStore((state) => state.setSelectedStore)
   const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
   const cartStoreId = useCartStore((state) => state.getStoreId())
@@ -38,17 +38,36 @@ export function MobileStoreSelector({ isOpen, onClose }: MobileStoreSelectorProp
     router.push(`/store/${storeSlug}`)
   }
 
+  const handleAllStoresSelect = () => {
+    // Check if cart has items - if so, show confirmation modal
+    if (cartStoreId) {
+      setPendingStore({ id: null, slug: "/" })
+      setShowConfirmModal(true)
+      onClose()
+      return
+    }
+
+    // No items in cart, proceed directly
+    setSelectedStore(null)
+    onClose()
+    router.push("/")
+  }
+
   const handleConfirmStoreSwitch = () => {
     if (!pendingStore) return
 
     // Clear cart
     useCartStore.getState().clearCart()
 
-    // Set new store
+    // Set new store (null for "All Stores")
     setSelectedStore(pendingStore.id)
 
-    // Navigate to store page
-    router.push(`/store/${pendingStore.slug}`)
+    // Navigate to store page or home
+    if (pendingStore.id && pendingStore.slug.startsWith('/store/')) {
+      router.push(pendingStore.slug)
+    } else {
+      router.push("/")
+    }
 
     // Clean up
     setPendingStore(null)
@@ -82,11 +101,7 @@ export function MobileStoreSelector({ isOpen, onClose }: MobileStoreSelectorProp
           <div className="space-y-2">
             {/* All Stores Option */}
             <button
-              onClick={() => {
-                setSelectedStore(null)
-                onClose()
-                router.push('/')
-              }}
+              onClick={handleAllStoresSelect}
               className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors border-2 border-primary/20 bg-primary/5"
             >
               <div className="w-14 h-14 relative rounded-lg overflow-hidden bg-secondary shrink-0 flex items-center justify-center">
@@ -147,9 +162,17 @@ export function MobileStoreSelector({ isOpen, onClose }: MobileStoreSelectorProp
           setPendingStore(null)
         }}
         onConfirm={handleConfirmStoreSwitch}
-        title="Switch Store?"
-        description="You have items in your cart from another store. Switching stores will clear your cart. Continue?"
-        confirmText="Switch Store"
+        title={
+          pendingStore?.id === null
+            ? "View All Stores?"
+            : "Switch Store?"
+        }
+        description={
+          pendingStore?.id === null
+            ? "You have items in your cart from a specific store. Viewing all stores will clear your cart. Continue?"
+            : "You have items in your cart from another store. Switching stores will clear your cart. Continue?"
+        }
+        confirmText={pendingStore?.id === null ? "View All Stores" : "Switch Store"}
         cancelText="Keep Shopping"
         variant="warning"
       />

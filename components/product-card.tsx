@@ -1,61 +1,73 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Plus, Minus, AlertCircle } from "lucide-react"
-import { Product } from "@/types"
-import { useCartStore } from "@/lib/store/cart-store"
-import { useState, useEffect } from "react"
-import { StoreSwitchModal } from "@/components/store-switch-modal"
-import { stores } from "@/lib/data/stores"
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Plus, Minus, AlertCircle } from "lucide-react";
+import { Product } from "@/types";
+import { useCartStore } from "@/lib/store/cart-store";
+import { useState, useEffect } from "react";
+import { StoreSwitchModal } from "@/components/store-switch-modal";
+import { stores } from "@/lib/data/stores";
 
 interface ProductCardProps {
-  product: Product
+  product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const router = useRouter()
-  const { addItem, getItemQuantity, updateQuantity, canAddProduct, getStoreId, clearCart } = useCartStore()
-  const quantity = getItemQuantity(product.id)
-  const [showModal, setShowModal] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const router = useRouter();
+  const {
+    addItem,
+    getItemQuantity,
+    updateQuantity,
+    canAddProduct,
+    getStoreId,
+    clearCart,
+  } = useCartStore();
+  const quantity = getItemQuantity(product.id);
+  const [showModal, setShowModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const canAdd = canAddProduct(product)
-  const cartStoreId = getStoreId()
-  const currentStore = cartStoreId ? stores.find(s => s.id === cartStoreId) : null
-  const productStore = stores.find(s => s.id === product.storeId)
+  const canAdd = canAddProduct(product);
+  const cartStoreId = getStoreId();
+  const currentStore = cartStoreId
+    ? stores.find((s) => s.id === cartStoreId)
+    : null;
+  const productStore = stores.find((s) => s.id === product.storeId);
 
   // Fix hydration mismatch
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const handleAddItem = () => {
-    const added = addItem(product)
+    const added = addItem(product);
     if (!added) {
       // Show modal instead of error
-      setShowModal(true)
+      setShowModal(true);
     }
-  }
+  };
 
   const handleClearAndAdd = () => {
-    clearCart()
-    addItem(product)
-    setShowModal(false)
-  }
+    clearCart();
+    addItem(product);
+    setShowModal(false);
+  };
 
   const handleGoToCart = () => {
-    setShowModal(false)
-    router.push('/cart')
-  }
+    setShowModal(false);
+    router.push("/cart");
+  };
 
   const handleContinueShopping = () => {
-    setShowModal(false)
-  }
+    setShowModal(false);
+  };
 
   return (
-    <div className="bg-white overflow-hidden transition-all group shadow-sm hover:shadow-md border border-gray-100" style={{ borderRadius: '16px 16px 24px 24px' }}>
+    <div
+      className="bg-white overflow-hidden transition-all group shadow-sm hover:shadow-md border border-gray-100"
+      style={{ borderRadius: "16px 16px 24px 24px" }}
+    >
       {/* Product Image - Clickable */}
       <Link href={`/product/${product.slug}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-white cursor-pointer">
@@ -92,20 +104,24 @@ export function ProductCard({ product }: ProductCardProps) {
             {Math.floor(product.price)}
           </span>
           <span className="text-sm font-medium text-gray-900">
-            .{product.price.toFixed(2).split('.')[1]}
+            .{product.price.toFixed(2).split(".")[1]}
           </span>
           <span className="text-xs text-gray-500">P</span>
         </div>
 
         {/* Add Button / Quantity Controls - Fixed height to prevent layout shift */}
         <div className="h-11">
-          {quantity === 0 ? (
+          {!mounted ? (
+            <div className="w-full h-full rounded-2xl flex items-center justify-center bg-gray-100">
+              <Plus className="h-5 w-5 text-gray-400" />
+            </div>
+          ) : quantity === 0 ? (
             <button
               onClick={handleAddItem}
-              disabled={!mounted || !canAdd}
+              disabled={!canAdd}
               className={`w-full h-full rounded-2xl flex items-center justify-center transition-colors font-semibold ${
-                mounted && canAdd
-                  ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                canAdd
+                  ? "bg-gray-100 hover:bg-secondary/30 text-gray-700 cursor-pointer"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
             >
@@ -146,5 +162,5 @@ export function ProductCard({ product }: ProductCardProps) {
         />
       )}
     </div>
-  )
+  );
 }

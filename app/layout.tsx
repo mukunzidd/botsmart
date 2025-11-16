@@ -8,6 +8,8 @@ import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
+  fallback: ["system-ui", "arial"],
 });
 
 export const viewport: Viewport = {

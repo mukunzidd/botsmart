@@ -1,96 +1,143 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { MapPin, Store, ChevronDown, Check, Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useSessionStore } from "@/lib/store/session-store"
-import { useCartStore } from "@/lib/store/cart-store"
-import { stores } from "@/lib/data/stores"
-import Image from "next/image"
-import Link from "next/link"
-import { ConfirmModal } from "@/components/confirm-modal"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { MapPin, Store, ChevronDown, Check, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useSessionStore } from "@/lib/store/session-store";
+import { useCartStore } from "@/lib/store/cart-store";
+import { stores } from "@/lib/data/stores";
+import Image from "next/image";
+import Link from "next/link";
+import { ConfirmModal } from "@/components/confirm-modal";
+import { LocationSelectorModalWithToast as LocationSelectorModal } from "@/components/location-selector-modal";
 
 const LOCATIONS = [
-  { city: 'Gaborone', areas: ['CBD', 'Extension 2', 'Block 3', 'Broadhurst', 'Gaborone West'] },
-  { city: 'Francistown', areas: ['Main Mall', 'Donga', 'Bluetown', 'Gerald'] },
-]
+  {
+    city: "Gaborone",
+    areas: ["CBD", "Extension 2", "Block 3", "Broadhurst", "Gaborone West"],
+  },
+  { city: "Francistown", areas: ["Main Mall", "Donga", "Bluetown", "Gerald"] },
+];
 
 export function LocationStoreSelector() {
-  const router = useRouter()
-  const [showLocationPicker, setShowLocationPicker] = useState(false)
-  const [showStorePicker, setShowStorePicker] = useState(false)
-  const [storeSearch, setStoreSearch] = useState("")
-  const [mounted, setMounted] = useState(false)
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [pendingStore, setPendingStore] = useState<{ id: string; slug: string } | null>(null)
+  const router = useRouter();
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [showStorePicker, setShowStorePicker] = useState(false);
+  const [storeSearch, setStoreSearch] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingStore, setPendingStore] = useState<{
+    id: string | null;
+    slug: string;
+  } | null>(null);
 
-  const deliveryLocation = useSessionStore((state) => state.deliveryLocation)
-  const setDeliveryLocation = useSessionStore((state) => state.setDeliveryLocation)
-  const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
-  const setSelectedStore = useSessionStore((state) => state.setSelectedStore)
-  const cartStoreId = useCartStore((state) => state.getStoreId())
+  const deliveryLocation = useSessionStore((state) => state.deliveryLocation);
+  const setDeliveryLocation = useSessionStore(
+    (state) => state.setDeliveryLocation
+  );
+  const selectedStoreId = useSessionStore((state) => state.selectedStoreId);
+  const setSelectedStore = useSessionStore((state) => state.setSelectedStore);
+  const cartStoreId = useCartStore((state) => state.getStoreId());
 
   // Prioritize cart store (if items in cart), otherwise use session selected store
-  const currentStoreId = cartStoreId || selectedStoreId
-  const currentStore = currentStoreId ? stores.find(s => s.id === currentStoreId) : null
+  const currentStoreId = cartStoreId || selectedStoreId;
+  const currentStore = currentStoreId
+    ? stores.find((s) => s.id === currentStoreId)
+    : null;
 
   // Fix hydration mismatch by only showing store after mount
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  const handleLocationSelect = (city: string, area: string) => {
-    setDeliveryLocation({ city, area })
-    setShowLocationPicker(false)
-  }
+  const handleLocationSelect = (location: {
+    city: string;
+    area: string;
+    address?: string;
+  }) => {
+    setDeliveryLocation({
+      city: location.city,
+      area: location.area,
+      address: location.address,
+    });
+    setShowLocationPicker(false);
+  };
 
-  const handleStoreSelect = (storeId: string, storeSlug: string) => {
-    // If cart has items from a different store, show warning modal
+  const handleStoreSelect = (storeId: string | null, storeSlug?: string) => {
+    // If cart has items and switching stores (including to "All Stores"), show warning modal
     if (cartStoreId && cartStoreId !== storeId) {
-      setPendingStore({ id: storeId, slug: storeSlug })
-      setShowConfirmModal(true)
-      setShowStorePicker(false)
-      return
+      setPendingStore({ 
+        id: storeId, 
+        slug: storeSlug || (storeId ? `/store/${storeId}` : '/') 
+      });
+      setShowConfirmModal(true);
+      setShowStorePicker(false);
+      return;
     }
 
-    setSelectedStore(storeId)
-    setShowStorePicker(false)
-    // Navigate to store page
-    router.push(`/store/${storeSlug}`)
-  }
+    setSelectedStore(storeId);
+    setShowStorePicker(false);
+    // Navigate to store page or home
+    if (storeId && storeSlug) {
+      router.push(`/store/${storeSlug}`);
+    } else {
+      router.push("/");
+    }
+  };
+
+  const handleAllStoresSelect = () => {
+    // Check if cart has items - if so, show confirmation modal
+    if (cartStoreId) {
+      setPendingStore({ id: null, slug: "/" });
+      setShowConfirmModal(true);
+      setShowStorePicker(false);
+      return;
+    }
+
+    // No items in cart, proceed directly
+    setSelectedStore(null);
+    setShowStorePicker(false);
+    router.push("/");
+  };
 
   const handleConfirmStoreSwitch = () => {
-    if (!pendingStore) return
+    if (!pendingStore) return;
 
     // Clear cart
-    useCartStore.getState().clearCart()
+    useCartStore.getState().clearCart();
 
-    // Set new store
-    setSelectedStore(pendingStore.id)
+    // Set new store (null for "All Stores")
+    setSelectedStore(pendingStore.id);
 
-    // Navigate to store page
-    router.push(`/store/${pendingStore.slug}`)
+    // Navigate to store page or home
+    if (pendingStore.id && pendingStore.slug.startsWith('/store/')) {
+      router.push(pendingStore.slug);
+    } else {
+      router.push("/");
+    }
 
     // Clean up
-    setPendingStore(null)
-  }
+    setPendingStore(null);
+  };
 
   // Group stores by area/location
   const groupedStores = stores.reduce((acc, store) => {
-    const area = store.distance // Using distance as a proxy for area grouping
+    const area = store.distance; // Using distance as a proxy for area grouping
     if (!acc[area]) {
-      acc[area] = []
+      acc[area] = [];
     }
-    acc[area].push(store)
-    return acc
-  }, {} as Record<string, typeof stores>)
+    acc[area].push(store);
+    return acc;
+  }, {} as Record<string, typeof stores>);
 
   // Filter stores by search
   const filteredStores = storeSearch
-    ? stores.filter(s => s.name.toLowerCase().includes(storeSearch.toLowerCase()))
-    : stores
+    ? stores.filter((s) =>
+        s.name.toLowerCase().includes(storeSearch.toLowerCase())
+      )
+    : stores;
 
   return (
     <div className="flex items-center gap-2 flex-nowrap">
@@ -102,39 +149,15 @@ export function LocationStoreSelector() {
         >
           <MapPin className="h-4 w-4 text-secondary flex-shrink-0" />
           <div className="flex flex-col items-start min-w-0">
-            <span className="text-xs text-secondary font-medium">Deliver to</span>
-            <span className="text-sm font-bold text-white truncate">{deliveryLocation.city}, {deliveryLocation.area}</span>
+            <span className="text-xs text-secondary font-medium">
+              Deliver to
+            </span>
+            <span className="text-sm font-bold text-white truncate">
+              {deliveryLocation.city}, {deliveryLocation.area}
+            </span>
           </div>
           <ChevronDown className="h-4 w-4 text-secondary flex-shrink-0" />
         </button>
-
-        {showLocationPicker && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setShowLocationPicker(false)} />
-            <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl z-50 p-4 max-h-96 overflow-y-auto">
-              <h3 className="font-bold text-gray-900 mb-4 text-lg">Delivery Location</h3>
-              {LOCATIONS.map((location) => (
-                <div key={location.city} className="mb-4">
-                  <p className="text-sm font-bold text-primary mb-2">{location.city}</p>
-                  <div className="space-y-1">
-                    {location.areas.map((area) => (
-                      <button
-                        key={area}
-                        onClick={() => handleLocationSelect(location.city, area)}
-                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-sm flex items-center justify-between transition-colors"
-                      >
-                        <span className="text-gray-700">{area}</span>
-                        {deliveryLocation.city === location.city && deliveryLocation.area === area && (
-                          <Check className="h-4 w-4 text-secondary" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
       </div>
 
       {/* Store Picker */}
@@ -147,7 +170,11 @@ export function LocationStoreSelector() {
           <div className="flex flex-col items-start min-w-0">
             <span className="text-xs text-white/70 font-medium">Shop from</span>
             <span className="text-sm font-bold text-white truncate">
-              {mounted ? (currentStore ? currentStore.name : 'All Stores') : 'All Stores'}
+              {mounted
+                ? currentStore
+                  ? currentStore.name
+                  : "All Stores"
+                : "All Stores"}
             </span>
           </div>
           <ChevronDown className="h-4 w-4 text-white flex-shrink-0" />
@@ -155,11 +182,16 @@ export function LocationStoreSelector() {
 
         {showStorePicker && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setShowStorePicker(false)} />
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setShowStorePicker(false)}
+            />
             <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-50 max-h-96 overflow-hidden flex flex-col">
               {/* Search Header */}
               <div className="p-4 border-b">
-                <h3 className="font-bold text-gray-900 mb-3 text-lg">Select Store</h3>
+                <h3 className="font-bold text-gray-900 mb-3 text-lg">
+                  Select Store
+                </h3>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
@@ -177,19 +209,19 @@ export function LocationStoreSelector() {
                 {/* All Stores Option */}
                 <div className="mb-4">
                   <button
-                    onClick={() => {
-                      setSelectedStore(null)
-                      setShowStorePicker(false)
-                      router.push('/')
-                    }}
+                    onClick={handleAllStoresSelect}
                     className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border-2 border-primary/20 bg-primary/5"
                   >
                     <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-secondary flex-shrink-0 flex items-center justify-center">
                       <Store className="h-6 w-6 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0 text-left">
-                      <p className="font-bold text-primary text-sm">All Stores</p>
-                      <p className="text-xs text-gray-600">Browse products from all stores</p>
+                      <p className="font-bold text-primary text-sm">
+                        All Stores
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        Browse products from all stores
+                      </p>
                     </div>
                     {!currentStoreId && (
                       <Check className="h-5 w-5 text-primary flex-shrink-0" />
@@ -203,24 +235,30 @@ export function LocationStoreSelector() {
                     <div className="w-full border-t border-gray-200"></div>
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="bg-white px-2 text-gray-500">or select a store</span>
+                    <span className="bg-white px-2 text-gray-500">
+                      or select a store
+                    </span>
                   </div>
                 </div>
 
                 {Object.entries(groupedStores).map(([area, areaStores]) => {
-                  const filtered = areaStores.filter(s =>
+                  const filtered = areaStores.filter((s) =>
                     s.name.toLowerCase().includes(storeSearch.toLowerCase())
-                  )
-                  if (filtered.length === 0) return null
+                  );
+                  if (filtered.length === 0) return null;
 
                   return (
                     <div key={area} className="mb-4">
-                      <p className="text-xs font-semibold text-gray-500 mb-2 uppercase">{area} away</p>
+                      <p className="text-xs font-semibold text-gray-500 mb-2 uppercase">
+                        {area} away
+                      </p>
                       <div className="space-y-2">
                         {filtered.map((store) => (
                           <button
                             key={store.id}
-                            onClick={() => handleStoreSelect(store.id, store.slug)}
+                            onClick={() =>
+                              handleStoreSelect(store.id, store.slug)
+                            }
                             className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
                           >
                             <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -233,8 +271,12 @@ export function LocationStoreSelector() {
                               />
                             </div>
                             <div className="flex-1 min-w-0 text-left">
-                              <p className="font-semibold text-gray-900 text-sm truncate">{store.name}</p>
-                              <p className="text-xs text-gray-500">{store.deliveryTime}</p>
+                              <p className="font-semibold text-gray-900 text-sm truncate">
+                                {store.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {store.deliveryTime}
+                              </p>
                             </div>
                             {currentStoreId === store.id && (
                               <Check className="h-5 w-5 text-secondary flex-shrink-0" />
@@ -243,7 +285,7 @@ export function LocationStoreSelector() {
                         ))}
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -251,20 +293,42 @@ export function LocationStoreSelector() {
         )}
       </div>
 
+      {/* Location Selector Modal */}
+      <LocationSelectorModal
+        isOpen={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        currentLocation={{
+          city: deliveryLocation.city,
+          area: deliveryLocation.area,
+          address:
+            deliveryLocation.address ||
+            `${deliveryLocation.area}, ${deliveryLocation.city}`,
+        }}
+        onSelectLocation={handleLocationSelect}
+      />
+
       {/* Confirmation Modal */}
       <ConfirmModal
         isOpen={showConfirmModal}
         onClose={() => {
-          setShowConfirmModal(false)
-          setPendingStore(null)
+          setShowConfirmModal(false);
+          setPendingStore(null);
         }}
         onConfirm={handleConfirmStoreSwitch}
-        title="Switch Store?"
-        description="You have items in your cart from another store. Switching stores will clear your cart. Continue?"
-        confirmText="Switch Store"
+        title={
+          pendingStore?.id === null
+            ? "View All Stores?"
+            : "Switch Store?"
+        }
+        description={
+          pendingStore?.id === null
+            ? "You have items in your cart from a specific store. Viewing all stores will clear your cart. Continue?"
+            : "You have items in your cart from another store. Switching stores will clear your cart. Continue?"
+        }
+        confirmText={pendingStore?.id === null ? "View All Stores" : "Switch Store"}
         cancelText="Keep Shopping"
         variant="warning"
       />
     </div>
-  )
+  );
 }

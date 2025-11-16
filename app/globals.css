@@ -119,6 +119,11 @@ button,
   will-change: transform;
 }
 
+/* Hide receipt container by default - only show when printing */
+.receipt-container {
+  display: none;
+}
+
 /* Print styles for receipts */
 @media print {
   /* Hide all UI elements */
@@ -150,8 +155,9 @@ button,
     margin: 0 !important;
   }
 
-  /* Receipt container */
+  /* Show receipt container only when printing */
   .receipt-container {
+    display: block !important;
     max-width: 80mm !important;
     margin: 0 auto !important;
     padding: 10mm !important;
