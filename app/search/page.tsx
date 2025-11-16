@@ -10,7 +10,7 @@ import { categories } from "@/lib/data/categories"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ChevronLeft, Search as SearchIcon } from "lucide-react"
+import { Search as SearchIcon } from "lucide-react"
 
 function SearchContent() {
   const searchParams = useSearchParams()
