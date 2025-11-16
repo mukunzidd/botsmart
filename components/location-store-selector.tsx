@@ -43,9 +43,11 @@ export function LocationStoreSelector() {
     setShowLocationPicker(false)
   }
 
-  const handleStoreSelect = (storeId: string) => {
+  const handleStoreSelect = (storeId: string, storeSlug: string) => {
     setSelectedStore(storeId)
     setShowStorePicker(false)
+    // Navigate to store page
+    router.push(`/store/${storeSlug}`)
   }
 
   // Group stores by area/location
@@ -158,13 +160,7 @@ export function LocationStoreSelector() {
                         {filtered.map((store) => (
                           <button
                             key={store.id}
-                            onClick={() => {
-                              handleStoreSelect(store.id)
-                              // Use setTimeout to ensure state is updated before navigation
-                              setTimeout(() => {
-                                window.location.href = `/store/${store.slug}`
-                              }, 0)
-                            }}
+                            onClick={() => handleStoreSelect(store.id, store.slug)}
                             className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
                           >
                             <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
