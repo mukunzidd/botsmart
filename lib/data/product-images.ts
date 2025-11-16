@@ -2,7 +2,7 @@
 export const productImages: Record<string, string> = {
   // Fruits & Vegetables
   "p1": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop", // tomatoes
-  "p2": "https://images.unsplash.com/photo-1508313880080-c4bae8bc0d19?w=400&h=400&fit=crop", // onions
+  "p2": "https://images.unsplash.com/photo-1580201092675-a0a6a6cafbb1?w=400&h=400&fit=crop", // onions
   "p3": "https://images.unsplash.com/photo-1477506350614-fcdc29a3b157?w=400&h=400&fit=crop", // butternut
   "p4": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop", // spinach
   "p5": "https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=400&h=400&fit=crop", // cabbage

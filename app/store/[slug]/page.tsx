@@ -3,19 +3,28 @@
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { getStoreBySlug } from "@/lib/data/stores"
 import { getProductsByStore } from "@/lib/data/products"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronLeft, Star, Clock, MapPin } from "lucide-react"
+import { useSessionStore } from "@/lib/store/session-store"
 
 export default function StorePage() {
   const params = useParams()
   const slug = params.slug as string
   const store = getStoreBySlug(slug)
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const setSelectedStore = useSessionStore((state) => state.setSelectedStore)
+
+  // Set the selected store when page loads
+  useEffect(() => {
+    if (store) {
+      setSelectedStore(store.id)
+    }
+  }, [store, setSelectedStore])
 
   if (!store) {
     return (

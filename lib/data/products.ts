@@ -30,7 +30,7 @@ export const products: Product[] = [
     unit: "per kg",
     category: "Fruits & Vegetables",
     subcategory: "Vegetables",
-    image: "https://images.unsplash.com/photo-1508313880080-c4bae8bc0d19?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1580201092675-a0a6a6cafbb1?w=400&h=400&fit=crop",
     inStock: true,
     featured: false
   },
