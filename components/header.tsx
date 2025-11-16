@@ -95,8 +95,19 @@ export function Header() {
           <div className="flex-1 md:hidden flex items-center justify-center gap-2">
             <button
               onClick={() => setShowMobileStoreSelector(true)}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 rounded-lg px-2.5 py-1.5 transition-colors max-w-[60%]"
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 rounded-lg px-2.5 py-1.5 transition-colors max-w-[70%]"
             >
+              {mounted && currentStore && (
+                <div className="relative h-6 w-6 rounded overflow-hidden bg-white flex-shrink-0">
+                  <Image
+                    src={currentStore.logo}
+                    alt={currentStore.name}
+                    fill
+                    className="object-contain p-0.5"
+                    sizes="24px"
+                  />
+                </div>
+              )}
               <span className="text-white font-semibold text-sm truncate">
                 {mounted && currentStore ? currentStore.name : "Select Store"}
               </span>
