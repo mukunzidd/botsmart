@@ -44,6 +44,19 @@ export function LocationStoreSelector() {
   }
 
   const handleStoreSelect = (storeId: string, storeSlug: string) => {
+    // If cart has items from a different store, show warning
+    if (cartStoreId && cartStoreId !== storeId) {
+      const confirmSwitch = window.confirm(
+        "You have items in your cart from another store. Switching stores will clear your cart. Continue?"
+      )
+      if (!confirmSwitch) {
+        setShowStorePicker(false)
+        return
+      }
+      // Clear cart if user confirms
+      useCartStore.getState().clearCart()
+    }
+
     setSelectedStore(storeId)
     setShowStorePicker(false)
     // Navigate to store page

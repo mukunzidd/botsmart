@@ -3,13 +3,14 @@
 import { useState, FormEvent, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Search, ShoppingCart, MapPin, Menu, User } from "lucide-react"
+import { Search, ShoppingCart, MapPin, Menu, User, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useSessionStore } from "@/lib/store/session-store"
 import { MobileMenu } from "@/components/mobile-menu"
+import { MobileStoreSelector } from "@/components/mobile-store-selector"
 import { SearchDropdown } from "@/components/search-dropdown"
 import { LocationStoreSelector } from "@/components/location-store-selector"
 import { stores } from "@/lib/data/stores"
@@ -19,17 +20,26 @@ export function Header() {
   const cartItemCount = useCartStore((state) => state.getTotalItems())
   const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
   const cartStoreId = useCartStore((state) => state.getStoreId())
+  const setSelectedStore = useSessionStore((state) => state.setSelectedStore)
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const [showMobileStoreSelector, setShowMobileStoreSelector] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
 
   // Prioritize cart store, then session store
   const currentStoreId = cartStoreId || selectedStoreId
   const currentStore = currentStoreId ? stores.find(s => s.id === currentStoreId) : null
-  const searchPlaceholder = currentStore
+
+  // Fix hydration mismatch by only showing store-specific placeholder after mount
+  const searchPlaceholder = mounted && currentStore
     ? `Search from ${currentStore.name}`
     : "Search for Grocery, Stores, Vegetable or Meat"
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault()
@@ -63,11 +73,24 @@ export function Header() {
               <div className="flex h-8 w-8 items-center justify-center">
                 <ShoppingCart className="h-6 w-6 text-secondary" />
               </div>
-              <span className="ml-2 text-xl font-bold tracking-tight text-white">
+              <span className="ml-2 text-xl font-bold tracking-tight text-white hidden md:block">
                 BotsMart
               </span>
             </div>
           </Link>
+
+          {/* Mobile Store Selector - Simple */}
+          <div className="flex-1 md:hidden flex items-center justify-center gap-2">
+            <button
+              onClick={() => setShowMobileStoreSelector(true)}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 rounded-lg px-2.5 py-1.5 transition-colors max-w-[60%]"
+            >
+              <span className="text-white font-semibold text-sm truncate">
+                {mounted && currentStore ? currentStore.name : "Select Store"}
+              </span>
+              <ChevronDown className="h-4 w-4 text-white shrink-0" />
+            </button>
+          </div>
 
           {/* Location & Store Selector - Desktop */}
           <div className="hidden md:block">
@@ -105,8 +128,8 @@ export function Header() {
               <span>Order now and get it within <span className="text-secondary">15 min!</span></span>
             </div>
 
-            {/* Cart */}
-            <Link href="/cart">
+            {/* Cart - Desktop only */}
+            <Link href="/cart" className="hidden md:block">
               <button className="relative h-9 w-9 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors">
                 <ShoppingCart className="h-5 w-5 text-primary" />
                 {cartItemCount > 0 && (
@@ -117,8 +140,8 @@ export function Header() {
               </button>
             </Link>
 
-            {/* User Profile */}
-            <Link href="/profile">
+            {/* User Profile - Desktop only */}
+            <Link href="/profile" className="hidden md:block">
               <button className="h-9 w-9 rounded-full bg-white overflow-hidden hover:opacity-90 transition-opacity">
                 <User className="h-full w-full text-primary p-2" />
               </button>
@@ -161,6 +184,7 @@ export function Header() {
 
       {/* Mobile Menu */}
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileStoreSelector isOpen={showMobileStoreSelector} onClose={() => setShowMobileStoreSelector(false)} />
     </header>
   )
 }

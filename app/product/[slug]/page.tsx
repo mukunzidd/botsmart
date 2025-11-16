@@ -8,7 +8,7 @@ import { stores } from "@/lib/data/stores"
 import { useCartStore } from "@/lib/store/cart-store"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Plus, Minus, AlertCircle, Star, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -17,6 +17,11 @@ export default function ProductDetailPage() {
   const product = products.find(p => p.slug === slug)
   const { addItem, getItemQuantity, updateQuantity, canAddProduct } = useCartStore()
   const [showError, setShowError] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   if (!product) {
     return (
@@ -170,10 +175,10 @@ export default function ProductDetailPage() {
               {quantity === 0 ? (
                 <Button
                   onClick={handleAddItem}
-                  disabled={!canAdd}
+                  disabled={!mounted || !canAdd}
                   size="lg"
                   className={`w-full h-16 text-lg rounded-xl font-bold ${
-                    canAdd
+                    mounted && canAdd
                       ? "bg-secondary hover:bg-secondary/90 text-primary shadow-lg"
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}

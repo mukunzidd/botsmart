@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Plus, Minus, AlertCircle } from "lucide-react"
 import { Product } from "@/types"
 import { useCartStore } from "@/lib/store/cart-store"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface ProductCardProps {
   product: Product
@@ -15,8 +15,14 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addItem, getItemQuantity, updateQuantity, canAddProduct } = useCartStore()
   const quantity = getItemQuantity(product.id)
   const [showError, setShowError] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   const canAdd = canAddProduct(product)
+
+  // Fix hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleAddItem = () => {
     const added = addItem(product)
@@ -75,9 +81,9 @@ export function ProductCard({ product }: ProductCardProps) {
         {quantity === 0 ? (
           <button
             onClick={handleAddItem}
-            disabled={!canAdd}
+            disabled={!mounted || !canAdd}
             className={`w-full h-10 rounded-lg flex items-center justify-center transition-colors ${
-              canAdd
+              mounted && canAdd
                 ? "bg-accent hover:bg-accent/80 text-gray-700"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
