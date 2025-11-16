@@ -87,48 +87,76 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
 
   if (searchQuery.length === 0) {
     // Get real featured products for recommended searches
-    const featuredProduct = products.find(p => p.featured) || products[0]
+    const featuredProducts = products.filter(p => p.featured).slice(0, 1)
 
-    // Get popular products from different stores
-    const popularProducts = [
-      products.find(p => p.name.toLowerCase().includes('tomato')),
-      products.find(p => p.name.toLowerCase().includes('banana')),
-      products.find(p => p.name.toLowerCase().includes('milk')),
-      products.find(p => p.name.toLowerCase().includes('bread')),
-      products.find(p => p.name.toLowerCase().includes('chicken')),
-      products.find(p => p.name.toLowerCase().includes('chips')),
-    ].filter(Boolean) as typeof products
+    // Get popular product names and find them across different stores
+    const popularProductNames = ['Tomatoes', 'Bananas', 'Milk', 'Bread', 'Chicken', 'Chips']
+    const popularProductsFromStores: typeof products = []
+
+    popularProductNames.forEach(name => {
+      // Find all products with this name from different stores
+      const productsWithName = products.filter(p =>
+        p.name.toLowerCase().includes(name.toLowerCase())
+      )
+
+      if (productsWithName.length > 0) {
+        // Sort by price and take the cheapest one
+        const sortedByPrice = [...productsWithName].sort((a, b) => a.price - b.price)
+        popularProductsFromStores.push(sortedByPrice[0])
+      }
+    })
 
     // Recommended searches (when search is empty or just clicked)
     return (
       <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl p-6 z-50 max-w-md">
-        <h3 className="font-semibold text-gray-900 mb-4">Recommended</h3>
-
-        <div className="space-y-3">
-          <Link href={`/product/${featuredProduct.slug}`} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors">
-            <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-              <Image
-                src={featuredProduct.image}
-                alt={featuredProduct.name}
-                fill
-                className="object-contain p-1"
-                sizes="40px"
-              />
+        {featuredProducts.length > 0 && (
+          <>
+            <h3 className="font-semibold text-gray-900 mb-4">Recommended</h3>
+            <div className="space-y-3">
+              {featuredProducts.map(product => {
+                const productStore = stores.find(s => s.id === product.storeId)
+                return (
+                  <Link
+                    key={product.id}
+                    href={`/product/${product.slug}`}
+                    className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                    onClick={onClose}
+                  >
+                    <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-1"
+                        sizes="40px"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {Math.floor(product.price)}.<sup>{product.price.toFixed(2).split('.')[1]}P</sup>
+                        {productStore && <span className="ml-2">• {productStore.name}</span>}
+                      </p>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">{featuredProduct.name}</p>
-              <p className="text-xs text-gray-500">{Math.floor(featuredProduct.price)}.<sup>{featuredProduct.price.toFixed(2).split('.')[1]}P</sup></p>
-            </div>
-          </Link>
-        </div>
+          </>
+        )}
 
         <h3 className="font-semibold text-gray-900 mt-6 mb-4">Popular products</h3>
 
         <div className="grid grid-cols-2 gap-3">
-          {popularProducts.map((product) => {
+          {popularProductsFromStores.map((product) => {
             const productStore = stores.find(s => s.id === product.storeId)
             return (
-              <Link key={product.id} href={`/product/${product.slug}`} className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+              <Link
+                key={product.id}
+                href={`/product/${product.slug}`}
+                className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={onClose}
+              >
                 <div className="w-8 h-8 relative rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                   <Image
                     src={product.image}
@@ -140,7 +168,12 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-gray-900 truncate">{product.name}</p>
-                  <p className="text-xs text-gray-500">{Math.floor(product.price)}.<sup>{product.price.toFixed(2).split('.')[1]}P</sup></p>
+                  <p className="text-xs text-gray-500">
+                    {Math.floor(product.price)}.<sup>{product.price.toFixed(2).split('.')[1]}P</sup>
+                  </p>
+                  {productStore && (
+                    <p className="text-xs text-gray-400 truncate">{productStore.name}</p>
+                  )}
                 </div>
               </Link>
             )
