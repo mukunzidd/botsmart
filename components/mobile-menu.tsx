@@ -31,8 +31,11 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
   // Close menu when route changes
   useEffect(() => {
-    onClose()
-  }, [pathname, onClose])
+    if (isOpen) {
+      onClose()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
 
   // Prevent body scroll when menu is open
   useEffect(() => {

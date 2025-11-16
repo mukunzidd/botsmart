@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { MapPin, Store, ChevronDown, Check, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,7 @@ const LOCATIONS = [
 ]
 
 export function LocationStoreSelector() {
+  const router = useRouter()
   const [showLocationPicker, setShowLocationPicker] = useState(false)
   const [showStorePicker, setShowStorePicker] = useState(false)
   const [storeSearch, setStoreSearch] = useState("")
@@ -154,11 +156,16 @@ export function LocationStoreSelector() {
                       <p className="text-xs font-semibold text-gray-500 mb-2 uppercase">{area} away</p>
                       <div className="space-y-2">
                         {filtered.map((store) => (
-                          <Link
+                          <button
                             key={store.id}
-                            href={`/store/${store.slug}`}
-                            onClick={() => handleStoreSelect(store.id)}
-                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                            onClick={() => {
+                              handleStoreSelect(store.id)
+                              // Use setTimeout to ensure state is updated before navigation
+                              setTimeout(() => {
+                                window.location.href = `/store/${store.slug}`
+                              }, 0)
+                            }}
+                            className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
                           >
                             <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                               <Image
@@ -169,14 +176,14 @@ export function LocationStoreSelector() {
                                 sizes="48px"
                               />
                             </div>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 text-left">
                               <p className="font-semibold text-gray-900 text-sm truncate">{store.name}</p>
                               <p className="text-xs text-gray-500">{store.deliveryTime}</p>
                             </div>
                             {currentStoreId === store.id && (
                               <Check className="h-5 w-5 text-secondary flex-shrink-0" />
                             )}
-                          </Link>
+                          </button>
                         ))}
                       </div>
                     </div>
