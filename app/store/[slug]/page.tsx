@@ -81,7 +81,7 @@ export default function StorePage() {
                 </div>
               </div>
 
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-nowrap">
                 {store.categories.slice(0, 4).map((cat, idx) => (
                   <Badge key={idx} variant="secondary" className="whitespace-nowrap flex-shrink-0">
                     {cat}
