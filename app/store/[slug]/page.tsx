@@ -9,7 +9,7 @@ import { getProductsByStore } from "@/lib/data/products"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ChevronLeft, Star, Clock, MapPin } from "lucide-react"
+import { Star, Clock, MapPin } from "lucide-react"
 import { useSessionStore } from "@/lib/store/session-store"
 
 export default function StorePage() {
@@ -46,18 +46,6 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back button */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-3">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ChevronLeft className="h-4 w-4" />
-              Back to stores
-            </Button>
-          </Link>
-        </div>
-      </div>
-
       {/* Store Header */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-6">
@@ -93,9 +81,9 @@ export default function StorePage() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                 {store.categories.slice(0, 4).map((cat, idx) => (
-                  <Badge key={idx} variant="secondary">
+                  <Badge key={idx} variant="secondary" className="whitespace-nowrap flex-shrink-0">
                     {cat}
                   </Badge>
                 ))}
