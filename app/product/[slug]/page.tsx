@@ -7,7 +7,7 @@ import { products } from "@/lib/data/products"
 import { stores } from "@/lib/data/stores"
 import { useCartStore } from "@/lib/store/cart-store"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, Plus, Minus, AlertCircle, Star, ChevronRight } from "lucide-react"
+import { Plus, Minus, AlertCircle, Star, ChevronRight } from "lucide-react"
 import { useState, useEffect } from "react"
 
 export default function ProductDetailPage() {
@@ -68,14 +68,6 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2 mb-6 hover:bg-primary/5">
-            <ChevronLeft className="h-4 w-4" />
-            Back to Shopping
-          </Button>
-        </Link>
-
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
           {/* Product Image */}
           <div className="bg-white rounded-3xl p-8 border border-gray-100 sticky top-24 h-fit">

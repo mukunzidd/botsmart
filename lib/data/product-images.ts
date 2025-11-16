@@ -15,7 +15,7 @@ export const productImages: Record<string, string> = {
   "p10": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&h=400&fit=crop", // chicken
   "p11": "https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=400&h=400&fit=crop", // minced beef
   "p12": "https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?w=400&h=400&fit=crop", // pork chops
-  "p13": "https://images.unsplash.com/photo-1613053341954-ed40e6d88cfb?w=400&h=400&fit=crop", // sausages
+  "p13": "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&h=400&fit=crop", // boerewors/sausages
 
   // Dairy & Eggs
   "p14": "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop", // milk
