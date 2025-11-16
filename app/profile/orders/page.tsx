@@ -3,12 +3,27 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useOrderStore } from "@/lib/store/order-store"
+import { useSessionStore } from "@/lib/store/session-store"
+import { useCartStore } from "@/lib/store/cart-store"
+import { stores } from "@/lib/data/stores"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Package, Calendar, CreditCard } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export default function OrderHistoryPage() {
   const { orders } = useOrderStore()
+  const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
+  const cartStoreId = useCartStore((state) => state.getStoreId())
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Prioritize cart store, then session store
+  const currentStoreId = cartStoreId || selectedStoreId
+  const currentStore = mounted && currentStoreId ? stores.find(s => s.id === currentStoreId) : null
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -129,8 +144,10 @@ export default function OrderHistoryPage() {
             <p className="text-gray-500 mb-6">
               Start shopping to see your orders here
             </p>
-            <Link href="/">
-              <Button size="lg">Browse Stores</Button>
+            <Link href={currentStore ? `/store/${currentStore.slug}` : "/"}>
+              <Button size="lg">
+                {currentStore ? `Shop at ${currentStore.name}` : "Browse Stores"}
+              </Button>
             </Link>
           </div>
         )}
