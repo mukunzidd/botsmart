@@ -79,19 +79,19 @@ export function LocationStoreSelector() {
     : stores
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-nowrap">
       {/* Delivery Location Selector */}
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         <button
           onClick={() => setShowLocationPicker(!showLocationPicker)}
-          className="flex items-center gap-2 px-3 py-2 bg-secondary/20 hover:bg-secondary/30 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-secondary/20 hover:bg-secondary/30 rounded-lg transition-colors whitespace-nowrap"
         >
-          <MapPin className="h-4 w-4 text-secondary" />
-          <div className="flex flex-col items-start">
+          <MapPin className="h-4 w-4 text-secondary flex-shrink-0" />
+          <div className="flex flex-col items-start min-w-0">
             <span className="text-xs text-secondary font-medium">Deliver to</span>
-            <span className="text-sm font-bold text-white">{deliveryLocation.city}, {deliveryLocation.area}</span>
+            <span className="text-sm font-bold text-white truncate">{deliveryLocation.city}, {deliveryLocation.area}</span>
           </div>
-          <ChevronDown className="h-4 w-4 text-secondary" />
+          <ChevronDown className="h-4 w-4 text-secondary flex-shrink-0" />
         </button>
 
         {showLocationPicker && (
@@ -124,19 +124,19 @@ export function LocationStoreSelector() {
       </div>
 
       {/* Store Picker */}
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         <button
           onClick={() => setShowStorePicker(!showStorePicker)}
-          className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors whitespace-nowrap"
         >
-          <Store className="h-4 w-4 text-white" />
-          <div className="flex flex-col items-start">
+          <Store className="h-4 w-4 text-white flex-shrink-0" />
+          <div className="flex flex-col items-start min-w-0">
             <span className="text-xs text-white/70 font-medium">Shop from</span>
-            <span className="text-sm font-bold text-white">
+            <span className="text-sm font-bold text-white truncate">
               {mounted ? (currentStore ? currentStore.name : 'Select Store') : 'Select Store'}
             </span>
           </div>
-          <ChevronDown className="h-4 w-4 text-white" />
+          <ChevronDown className="h-4 w-4 text-white flex-shrink-0" />
         </button>
 
         {showStorePicker && (
