@@ -220,35 +220,35 @@ export default function CheckoutPage() {
                   const isExpanded = expandedStores[storeId]
 
                   return (
-                    <div key={storeId} className="border border-gray-200 rounded-xl overflow-hidden">
+                    <div key={storeId} className="border-2 border-primary/10 rounded-xl overflow-hidden">
                       {/* Store Header */}
-                      <div className="p-4 bg-gray-50">
+                      <div className="p-4 bg-gradient-to-r from-primary/5 to-secondary/10">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 flex-1">
-                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-xl bg-white shadow-sm border-2 border-white flex items-center justify-center overflow-hidden flex-shrink-0">
                               {store && (
                                 <Image
                                   src={store.logo}
                                   alt={store.name}
-                                  width={40}
-                                  height={40}
-                                  className="rounded-full object-contain p-1"
+                                  width={48}
+                                  height={48}
+                                  className="object-contain p-1.5"
                                 />
                               )}
                             </div>
-                            <div>
-                              <p className="font-bold text-gray-900">{store?.name}</p>
-                              <p className="text-xs text-gray-500">Delivery in {store?.deliveryTime}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-primary truncate">{store?.name}</p>
+                              <p className="text-xs text-gray-600 font-medium">Delivery in {store?.deliveryTime}</p>
                             </div>
                           </div>
                           <button
                             onClick={() => toggleStoreExpand(storeId)}
-                            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                            className="p-2 hover:bg-white/50 rounded-lg transition-colors flex-shrink-0"
                           >
                             {isExpanded ? (
-                              <ChevronUp className="h-5 w-5 text-gray-600" />
+                              <ChevronUp className="h-5 w-5 text-primary" />
                             ) : (
-                              <ChevronDown className="h-5 w-5 text-gray-600" />
+                              <ChevronDown className="h-5 w-5 text-primary" />
                             )}
                           </button>
                         </div>

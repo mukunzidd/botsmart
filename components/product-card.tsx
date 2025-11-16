@@ -2,22 +2,29 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Plus, Minus, AlertCircle } from "lucide-react"
 import { Product } from "@/types"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useState, useEffect } from "react"
+import { StoreSwitchModal } from "@/components/store-switch-modal"
+import { stores } from "@/lib/data/stores"
 
 interface ProductCardProps {
   product: Product
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addItem, getItemQuantity, updateQuantity, canAddProduct } = useCartStore()
+  const router = useRouter()
+  const { addItem, getItemQuantity, updateQuantity, canAddProduct, getStoreId, clearCart } = useCartStore()
   const quantity = getItemQuantity(product.id)
-  const [showError, setShowError] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   const canAdd = canAddProduct(product)
+  const cartStoreId = getStoreId()
+  const currentStore = cartStoreId ? stores.find(s => s.id === cartStoreId) : null
+  const productStore = stores.find(s => s.id === product.storeId)
 
   // Fix hydration mismatch
   useEffect(() => {
@@ -27,16 +34,31 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddItem = () => {
     const added = addItem(product)
     if (!added) {
-      setShowError(true)
-      setTimeout(() => setShowError(false), 3000)
+      // Show modal instead of error
+      setShowModal(true)
     }
   }
 
+  const handleClearAndAdd = () => {
+    clearCart()
+    addItem(product)
+    setShowModal(false)
+  }
+
+  const handleGoToCart = () => {
+    setShowModal(false)
+    router.push('/cart')
+  }
+
+  const handleContinueShopping = () => {
+    setShowModal(false)
+  }
+
   return (
-    <div className="bg-white rounded-lg p-0 transition-all group">
+    <div className="bg-white rounded-t-xl rounded-b-3xl p-0 transition-all group shadow-sm hover:shadow-md border border-gray-100">
       {/* Product Image - Clickable */}
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-square mb-3 overflow-hidden bg-white cursor-pointer">
+        <div className="relative aspect-square mb-3 overflow-hidden bg-white cursor-pointer rounded-t-xl">
           <Image
             src={product.image}
             alt={product.name}
@@ -48,13 +70,18 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* Product Info */}
-      <div className="text-center space-y-1 px-2 pb-3">
+      <div className="text-center space-y-1 px-3 pb-3">
         {/* Product Name - Clickable */}
         <Link href={`/product/${product.slug}`}>
-          <h3 className="text-sm text-gray-900 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer">
+          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer">
             {product.name}
           </h3>
         </Link>
+
+        {/* Store Name */}
+        {productStore && (
+          <p className="text-xs text-gray-500">({productStore.name})</p>
+        )}
 
         {/* Unit */}
         <p className="text-xs text-gray-400">{product.unit}</p>
@@ -71,45 +98,51 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Add Button / Quantity Controls */}
-        {showError && (
-          <div className="text-xs text-red-500 text-center mb-1 flex items-center justify-center gap-1">
-            <AlertCircle className="h-3 w-3" />
-            <span>Different store</span>
-          </div>
-        )}
-
         {quantity === 0 ? (
           <button
             onClick={handleAddItem}
             disabled={!mounted || !canAdd}
-            className={`w-full h-10 rounded-lg flex items-center justify-center transition-colors ${
+            className={`w-full h-11 rounded-2xl flex items-center justify-center transition-colors font-semibold ${
               mounted && canAdd
-                ? "bg-accent hover:bg-accent/80 text-gray-700"
+                ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
           >
             <Plus className="h-5 w-5" />
           </button>
         ) : (
-          <div className="flex items-center justify-center gap-2 bg-secondary rounded-full px-3 py-2">
+          <div className="flex items-center justify-center gap-3 bg-secondary/30 rounded-2xl px-4 py-2.5">
             <button
               onClick={() => updateQuantity(product.id, quantity - 1)}
-              className="h-7 w-7 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
+              className="h-8 w-8 rounded-full border-2 border-primary bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
             >
-              <Minus className="h-4 w-4 text-white" />
+              <Minus className="h-4 w-4 text-primary" />
             </button>
-            <span className="text-base font-semibold min-w-[24px] text-center text-gray-900">
+            <span className="text-base font-bold min-w-[28px] text-center text-gray-900">
               {quantity}
             </span>
             <button
               onClick={() => updateQuantity(product.id, quantity + 1)}
-              className="h-7 w-7 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
+              className="h-8 w-8 rounded-full border-2 border-primary bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
             >
               <Plus className="h-4 w-4 text-white" />
             </button>
           </div>
         )}
       </div>
+
+      {/* Store Switch Modal */}
+      {currentStore && productStore && (
+        <StoreSwitchModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          currentStoreName={currentStore.name}
+          newStoreName={productStore.name}
+          onContinueShopping={handleContinueShopping}
+          onGoToCart={handleGoToCart}
+          onClearAndAdd={handleClearAndAdd}
+        />
+      )}
     </div>
   )
 }

@@ -29,6 +29,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const mobileSearchRef = useRef<HTMLInputElement>(null)
+  const mobileSearchContainerRef = useRef<HTMLDivElement>(null)
 
   // Prioritize cart store, then session store
   const currentStoreId = cartStoreId || selectedStoreId
@@ -65,7 +66,10 @@ export function Header() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      const isOutsideDesktop = searchRef.current && !searchRef.current.contains(event.target as Node)
+      const isOutsideMobile = mobileSearchContainerRef.current && !mobileSearchContainerRef.current.contains(event.target as Node)
+
+      if (isOutsideDesktop && isOutsideMobile) {
         setShowSearchDropdown(false)
       }
     }
@@ -110,7 +114,7 @@ export function Header() {
                 </div>
               )}
               <span className="text-white font-semibold text-sm truncate">
-                {mounted && currentStore ? currentStore.name : "Select Store"}
+                {mounted ? (currentStore ? currentStore.name : "All Stores") : "All Stores"}
               </span>
               <ChevronDown className="h-4 w-4 text-white shrink-0" />
             </button>
@@ -182,7 +186,7 @@ export function Header() {
         </div>
 
           {/* Mobile search bar */}
-          <div className="pb-3 md:hidden">
+          <div className="pb-3 md:hidden" ref={mobileSearchContainerRef}>
             <form onSubmit={handleSearch}>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />

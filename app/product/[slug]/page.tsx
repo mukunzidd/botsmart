@@ -208,15 +208,9 @@ export default function ProductDetailPage() {
         {/* Others Store Section */}
         {uniqueStoreProducts.length > 0 && (
           <section className="mb-12">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-              <div>
-                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary">Others store</h2>
-                <p className="text-gray-600 text-xs md:text-sm mt-1">Find the same product at different stores</p>
-              </div>
-              <Link href="/search" className="text-primary hover:text-primary/80 font-semibold text-sm flex items-center gap-1 w-fit">
-                Visit stores
-                <ChevronRight className="h-4 w-4" />
-              </Link>
+            <div className="mb-6">
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-primary">Others store</h2>
+              <p className="text-gray-600 text-xs md:text-sm mt-1">Find the same product at different stores</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -233,23 +227,38 @@ export default function ProductDetailPage() {
                         : 'border-gray-200 hover:border-primary/30'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      {/* Store Logo */}
-                      {otherStore && (
-                        <div className="w-12 h-12 md:w-14 md:h-14 relative rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-200">
-                          <Image
-                            src={otherStore.logo}
-                            alt={otherStore.name}
-                            fill
-                            className="object-contain p-1 md:p-2"
-                            sizes="(max-width: 768px) 48px, 56px"
-                          />
-                        </div>
-                      )}
+                    <div className="flex items-start gap-3">
+                      {/* Product Image */}
+                      <div className="w-14 h-14 md:w-16 md:h-16 relative rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
+                        <Image
+                          src={otherProduct.image}
+                          alt={otherProduct.name}
+                          fill
+                          className="object-contain p-1.5"
+                          sizes="(max-width: 768px) 56px, 64px"
+                        />
+                      </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start gap-2 mb-1 flex-wrap">
-                          <p className="font-bold text-sm md:text-base text-gray-900 truncate flex-1 min-w-0">
+                        {/* Product Name */}
+                        <h3 className="font-semibold text-sm text-gray-900 line-clamp-1 mb-1">
+                          {otherProduct.name}
+                        </h3>
+
+                        {/* Store Info */}
+                        <div className="flex items-center gap-2 mb-2">
+                          {otherStore && (
+                            <div className="w-5 h-5 relative rounded overflow-hidden bg-white flex-shrink-0 border border-gray-200">
+                              <Image
+                                src={otherStore.logo}
+                                alt={otherStore.name}
+                                fill
+                                className="object-contain p-0.5"
+                                sizes="20px"
+                              />
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-600 truncate flex-1 min-w-0">
                             {otherStore?.name}
                           </p>
                           {isLowestPrice && (
@@ -258,25 +267,30 @@ export default function ProductDetailPage() {
                             </span>
                           )}
                         </div>
+
                         <p className="text-xs text-gray-500 mb-2">
                           🚚 {otherStore?.deliveryTime}
                         </p>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-xl md:text-2xl font-bold text-primary">
-                            {Math.floor(otherProduct.price)}
-                          </span>
-                          <span className="text-sm md:text-base font-bold text-primary">
-                            .{otherProduct.price.toFixed(2).split('.')[1]}
-                          </span>
-                          <span className="text-xs md:text-sm text-gray-600">P</span>
+
+                        {/* Price and Button */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-baseline gap-0.5">
+                            <span className="text-lg md:text-xl font-bold text-primary">
+                              {Math.floor(otherProduct.price)}
+                            </span>
+                            <span className="text-sm font-bold text-primary">
+                              .{otherProduct.price.toFixed(2).split('.')[1]}
+                            </span>
+                            <span className="text-xs text-gray-600">P</span>
+                          </div>
+
+                          <Link href={`/product/${otherProduct.slug}`}>
+                            <Button size="sm" variant="outline" className="rounded-lg border-2 hover:bg-primary hover:text-white hover:border-primary font-semibold text-xs px-3 py-1">
+                              View
+                            </Button>
+                          </Link>
                         </div>
                       </div>
-
-                      <Link href={`/product/${otherProduct.slug}`} className="flex-shrink-0">
-                        <Button size="sm" variant="outline" className="rounded-xl border-2 hover:bg-primary hover:text-white hover:border-primary font-semibold text-xs md:text-sm px-3 py-1.5">
-                          View
-                        </Button>
-                      </Link>
                     </div>
                   </div>
                 )

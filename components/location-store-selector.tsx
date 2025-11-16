@@ -10,6 +10,7 @@ import { useCartStore } from "@/lib/store/cart-store"
 import { stores } from "@/lib/data/stores"
 import Image from "next/image"
 import Link from "next/link"
+import { ConfirmModal } from "@/components/confirm-modal"
 
 const LOCATIONS = [
   { city: 'Gaborone', areas: ['CBD', 'Extension 2', 'Block 3', 'Broadhurst', 'Gaborone West'] },
@@ -22,6 +23,8 @@ export function LocationStoreSelector() {
   const [showStorePicker, setShowStorePicker] = useState(false)
   const [storeSearch, setStoreSearch] = useState("")
   const [mounted, setMounted] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [pendingStore, setPendingStore] = useState<{ id: string; slug: string } | null>(null)
 
   const deliveryLocation = useSessionStore((state) => state.deliveryLocation)
   const setDeliveryLocation = useSessionStore((state) => state.setDeliveryLocation)
@@ -44,23 +47,34 @@ export function LocationStoreSelector() {
   }
 
   const handleStoreSelect = (storeId: string, storeSlug: string) => {
-    // If cart has items from a different store, show warning
+    // If cart has items from a different store, show warning modal
     if (cartStoreId && cartStoreId !== storeId) {
-      const confirmSwitch = window.confirm(
-        "You have items in your cart from another store. Switching stores will clear your cart. Continue?"
-      )
-      if (!confirmSwitch) {
-        setShowStorePicker(false)
-        return
-      }
-      // Clear cart if user confirms
-      useCartStore.getState().clearCart()
+      setPendingStore({ id: storeId, slug: storeSlug })
+      setShowConfirmModal(true)
+      setShowStorePicker(false)
+      return
     }
 
     setSelectedStore(storeId)
     setShowStorePicker(false)
     // Navigate to store page
     router.push(`/store/${storeSlug}`)
+  }
+
+  const handleConfirmStoreSwitch = () => {
+    if (!pendingStore) return
+
+    // Clear cart
+    useCartStore.getState().clearCart()
+
+    // Set new store
+    setSelectedStore(pendingStore.id)
+
+    // Navigate to store page
+    router.push(`/store/${pendingStore.slug}`)
+
+    // Clean up
+    setPendingStore(null)
   }
 
   // Group stores by area/location
@@ -133,7 +147,7 @@ export function LocationStoreSelector() {
           <div className="flex flex-col items-start min-w-0">
             <span className="text-xs text-white/70 font-medium">Shop from</span>
             <span className="text-sm font-bold text-white truncate">
-              {mounted ? (currentStore ? currentStore.name : 'Select Store') : 'Select Store'}
+              {mounted ? (currentStore ? currentStore.name : 'All Stores') : 'All Stores'}
             </span>
           </div>
           <ChevronDown className="h-4 w-4 text-white flex-shrink-0" />
@@ -160,6 +174,39 @@ export function LocationStoreSelector() {
 
               {/* Stores List */}
               <div className="overflow-y-auto p-4">
+                {/* All Stores Option */}
+                <div className="mb-4">
+                  <button
+                    onClick={() => {
+                      setSelectedStore(null)
+                      setShowStorePicker(false)
+                      router.push('/')
+                    }}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border-2 border-primary/20 bg-primary/5"
+                  >
+                    <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-secondary flex-shrink-0 flex items-center justify-center">
+                      <Store className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="font-bold text-primary text-sm">All Stores</p>
+                      <p className="text-xs text-gray-600">Browse products from all stores</p>
+                    </div>
+                    {!currentStoreId && (
+                      <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="relative mb-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-white px-2 text-gray-500">or select a store</span>
+                  </div>
+                </div>
+
                 {Object.entries(groupedStores).map(([area, areaStores]) => {
                   const filtered = areaStores.filter(s =>
                     s.name.toLowerCase().includes(storeSearch.toLowerCase())
@@ -203,6 +250,21 @@ export function LocationStoreSelector() {
           </>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false)
+          setPendingStore(null)
+        }}
+        onConfirm={handleConfirmStoreSwitch}
+        title="Switch Store?"
+        description="You have items in your cart from another store. Switching stores will clear your cart. Continue?"
+        confirmText="Switch Store"
+        cancelText="Keep Shopping"
+        variant="warning"
+      />
     </div>
   )
 }

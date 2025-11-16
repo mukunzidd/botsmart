@@ -57,7 +57,7 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
       )
 
       if (currentStoreId) {
-        // Show products from selected store first
+        // Show products from selected store first, then others
         const storeProducts = foundProducts.filter(p => p.storeId === currentStoreId)
         const otherProducts = foundProducts.filter(p => p.storeId !== currentStoreId)
         foundProducts = [...storeProducts, ...otherProducts]
@@ -86,32 +86,53 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
   }
 
   if (searchQuery.length === 0) {
-    // Get real featured products for recommended searches
-    const featuredProducts = products.filter(p => p.featured).slice(0, 1)
+    // Get featured products - prioritize from selected store
+    let featuredProducts = products.filter(p => p.featured)
+    if (currentStoreId) {
+      const storeFeatures = featuredProducts.filter(p => p.storeId === currentStoreId)
+      featuredProducts = storeFeatures.length > 0 ? storeFeatures : featuredProducts
+    }
+    featuredProducts = featuredProducts.slice(0, 1)
 
-    // Get popular product names and find them across different stores
+    // Get popular product names and find them - prioritize selected store
     const popularProductNames = ['Tomatoes', 'Bananas', 'Milk', 'Bread', 'Chicken', 'Chips']
     const popularProductsFromStores: typeof products = []
 
     popularProductNames.forEach(name => {
-      // Find all products with this name from different stores
+      // Find all products with this name
       const productsWithName = products.filter(p =>
         p.name.toLowerCase().includes(name.toLowerCase())
       )
 
       if (productsWithName.length > 0) {
-        // Sort by price and take the cheapest one
-        const sortedByPrice = [...productsWithName].sort((a, b) => a.price - b.price)
-        popularProductsFromStores.push(sortedByPrice[0])
+        // If store is selected, prioritize products from that store
+        if (currentStoreId) {
+          const fromCurrentStore = productsWithName.find(p => p.storeId === currentStoreId)
+          if (fromCurrentStore) {
+            popularProductsFromStores.push(fromCurrentStore)
+          } else {
+            // If not in current store, get cheapest from other stores
+            const sortedByPrice = [...productsWithName].sort((a, b) => a.price - b.price)
+            popularProductsFromStores.push(sortedByPrice[0])
+          }
+        } else {
+          // No store selected, just show cheapest
+          const sortedByPrice = [...productsWithName].sort((a, b) => a.price - b.price)
+          popularProductsFromStores.push(sortedByPrice[0])
+        }
       }
     })
+
+    const currentStoreName = currentStoreId ? stores.find(s => s.id === currentStoreId)?.name : null
 
     // Recommended searches (when search is empty or just clicked)
     return (
       <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl p-6 z-50 max-w-md">
         {featuredProducts.length > 0 && (
           <>
-            <h3 className="font-semibold text-gray-900 mb-4">Recommended</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">
+              {currentStoreName ? `From ${currentStoreName}` : 'Recommended'}
+            </h3>
             <div className="space-y-3">
               {featuredProducts.map(product => {
                 const productStore = stores.find(s => s.id === product.storeId)
@@ -135,7 +156,7 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
                       <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
                       <p className="text-xs text-gray-500">
                         {Math.floor(product.price)}.<sup>{product.price.toFixed(2).split('.')[1]}P</sup>
-                        {productStore && <span className="ml-2">• {productStore.name}</span>}
+                        {!currentStoreName && productStore && <span className="ml-2">• {productStore.name}</span>}
                       </p>
                     </div>
                   </Link>
@@ -145,11 +166,14 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
           </>
         )}
 
-        <h3 className="font-semibold text-gray-900 mt-6 mb-4">Popular products</h3>
+        <h3 className="font-semibold text-gray-900 mt-6 mb-4">
+          {currentStoreName ? `Popular at ${currentStoreName}` : 'Popular products'}
+        </h3>
 
         <div className="grid grid-cols-2 gap-3">
           {popularProductsFromStores.map((product) => {
             const productStore = stores.find(s => s.id === product.storeId)
+            const isFromCurrentStore = currentStoreId && product.storeId === currentStoreId
             return (
               <Link
                 key={product.id}
@@ -171,7 +195,7 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
                   <p className="text-xs text-gray-500">
                     {Math.floor(product.price)}.<sup>{product.price.toFixed(2).split('.')[1]}P</sup>
                   </p>
-                  {productStore && (
+                  {!isFromCurrentStore && productStore && (
                     <p className="text-xs text-gray-400 truncate">{productStore.name}</p>
                   )}
                 </div>
@@ -239,7 +263,7 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
           <h3 className="font-semibold text-gray-900 mb-4">
             Products
             {currentStoreId && (
-              <span className="ml-2 text-xs text-secondary font-normal">
+              <span className="ml-2 text-xs text-primary font-normal">
                 (from {stores.find(s => s.id === currentStoreId)?.name} first)
               </span>
             )}
@@ -247,13 +271,16 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
           <div className="space-y-3">
             {searchProducts.map((product) => {
               const isFromCurrentStore = currentStoreId && product.storeId === currentStoreId
+              const productStore = stores.find(s => s.id === product.storeId)
+              const isFromOtherStore = currentStoreId && !isFromCurrentStore
+
               return (
                 <Link
                   key={product.id}
                   href={`/search?q=${product.name}`}
                   className={`flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors ${
                     isFromCurrentStore ? 'bg-secondary/5 border border-secondary/20' : ''
-                  }`}
+                  } ${isFromOtherStore ? 'border border-orange-200' : ''}`}
                   onClick={onClose}
                 >
                   <div className="w-12 h-12 relative bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
@@ -272,6 +299,11 @@ export function SearchDropdown({ searchQuery, onClose }: SearchDropdownProps) {
                     <p className="text-sm text-gray-500">
                       {Math.floor(product.price)}.<sup className="text-xs">{product.price.toFixed(2).split('.')[1]}P</sup>
                     </p>
+                    {isFromOtherStore && productStore && (
+                      <p className="text-xs text-orange-600 font-medium mt-0.5">
+                        Available at {productStore.name}
+                      </p>
+                    )}
                   </div>
                 </Link>
               )

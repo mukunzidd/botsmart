@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSessionStore } from "@/lib/store/session-store"
 import { useCartStore } from "@/lib/store/cart-store"
 import { stores } from "@/lib/data/stores"
-import { X, Check } from "lucide-react"
+import { X, Check, Store } from "lucide-react"
 import Image from "next/image"
+import { ConfirmModal } from "@/components/confirm-modal"
 
 interface MobileStoreSelectorProps {
   isOpen: boolean
@@ -14,29 +16,42 @@ interface MobileStoreSelectorProps {
 
 export function MobileStoreSelector({ isOpen, onClose }: MobileStoreSelectorProps) {
   const router = useRouter()
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [pendingStore, setPendingStore] = useState<{ id: string; slug: string } | null>(null)
   const setSelectedStore = useSessionStore((state) => state.setSelectedStore)
   const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
   const cartStoreId = useCartStore((state) => state.getStoreId())
   const currentStoreId = cartStoreId || selectedStoreId
 
   const handleStoreSelect = (storeId: string, storeSlug: string) => {
-    // If cart has items from a different store, show warning
+    // If cart has items from a different store, show warning modal
     if (cartStoreId && cartStoreId !== storeId) {
-      const confirmSwitch = window.confirm(
-        "You have items in your cart from another store. Switching stores will clear your cart. Continue?"
-      )
-      if (!confirmSwitch) {
-        onClose()
-        return
-      }
-      // Clear cart if user confirms
-      useCartStore.getState().clearCart()
+      setPendingStore({ id: storeId, slug: storeSlug })
+      setShowConfirmModal(true)
+      onClose()
+      return
     }
 
     setSelectedStore(storeId)
     onClose()
     // Navigate to store page
     router.push(`/store/${storeSlug}`)
+  }
+
+  const handleConfirmStoreSwitch = () => {
+    if (!pendingStore) return
+
+    // Clear cart
+    useCartStore.getState().clearCart()
+
+    // Set new store
+    setSelectedStore(pendingStore.id)
+
+    // Navigate to store page
+    router.push(`/store/${pendingStore.slug}`)
+
+    // Clean up
+    setPendingStore(null)
   }
 
   if (!isOpen) return null
@@ -65,6 +80,37 @@ export function MobileStoreSelector({ isOpen, onClose }: MobileStoreSelectorProp
         {/* Stores List */}
         <div className="overflow-y-auto p-4">
           <div className="space-y-2">
+            {/* All Stores Option */}
+            <button
+              onClick={() => {
+                setSelectedStore(null)
+                onClose()
+                router.push('/')
+              }}
+              className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors border-2 border-primary/20 bg-primary/5"
+            >
+              <div className="w-14 h-14 relative rounded-lg overflow-hidden bg-secondary shrink-0 flex items-center justify-center">
+                <Store className="h-7 w-7 text-primary" />
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <p className="font-bold text-primary">All Stores</p>
+                <p className="text-sm text-gray-600">Browse products from all stores</p>
+              </div>
+              {!currentStoreId && (
+                <Check className="h-6 w-6 text-primary shrink-0" />
+              )}
+            </button>
+
+            {/* Divider */}
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-white px-2 text-gray-500">or select a store</span>
+              </div>
+            </div>
+
             {stores.map((store) => (
               <button
                 key={store.id}
@@ -92,6 +138,21 @@ export function MobileStoreSelector({ isOpen, onClose }: MobileStoreSelectorProp
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false)
+          setPendingStore(null)
+        }}
+        onConfirm={handleConfirmStoreSwitch}
+        title="Switch Store?"
+        description="You have items in your cart from another store. Switching stores will clear your cart. Continue?"
+        confirmText="Switch Store"
+        cancelText="Keep Shopping"
+        variant="warning"
+      />
     </>
   )
 }

@@ -22,12 +22,13 @@ const HERO_IMAGES = [
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [mounted, setMounted] = useState(false)
   const setSelectedStore = useSessionStore((state) => state.setSelectedStore)
   const selectedStoreId = useSessionStore((state) => state.selectedStoreId)
   const cartStoreId = useCartStore((state) => state.getStoreId())
 
   // Prioritize cart store, then session store
-  const currentStoreId = cartStoreId || selectedStoreId
+  const currentStoreId = mounted ? (cartStoreId || selectedStoreId) : null
 
   // Filter products by selected store if a store is selected
   const filteredProducts = currentStoreId
@@ -40,8 +41,10 @@ export default function Home() {
   // Get weekly best selling
   const weeklyBestSelling = filteredProducts.slice(0, 10)
 
-  // Rotate hero images every 10 seconds
+  // Fix hydration and rotate hero images
   useEffect(() => {
+    setMounted(true)
+
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length)
     }, 10000) // 10 seconds
