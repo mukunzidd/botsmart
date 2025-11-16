@@ -14,9 +14,9 @@ import { useSessionStore } from "@/lib/store/session-store"
 import { useCartStore } from "@/lib/store/cart-store"
 
 const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&h=600&fit=crop", // Grocery shopping with cart
-  "https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=1400&h=600&fit=crop", // Fresh vegetables in basket
-  "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1400&h=600&fit=crop", // Farmer's market produce
+  "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400&h=600&fit=crop", // Colorful grocery bags with fresh produce
+  "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&h=600&fit=crop", // Vibrant supermarket aisles
+  "https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=1400&h=600&fit=crop", // Fresh market vegetables
 ]
 
 export default function Home() {

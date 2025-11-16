@@ -15,7 +15,7 @@ export const products: Product[] = [
     unit: "per kg",
     category: "Fruits & Vegetables",
     subcategory: "Vegetables",
-    image: "https://images.unsplash.com/photo-1546470427-e26264592d7e?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop",
     inStock: true,
     featured: true,
     tags: ["fresh", "local", "organic"]
@@ -30,7 +30,7 @@ export const products: Product[] = [
     unit: "per kg",
     category: "Fruits & Vegetables",
     subcategory: "Vegetables",
-    image: "https://images.unsplash.com/photo-1618512496764-68e0b7b72eb5?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1508313880080-c4bae8bc0d19?w=400&h=400&fit=crop",
     inStock: true,
     featured: false
   },
@@ -46,7 +46,7 @@ export const products: Product[] = [
     unit: "per piece",
     category: "Fruits & Vegetables",
     subcategory: "Vegetables",
-    image: "https://images.unsplash.com/photo-1570493318894-8e94ab7abb52?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1477506350614-fcdc29a3b157?w=400&h=400&fit=crop",
     inStock: true,
     featured: true
   },
