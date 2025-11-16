@@ -55,10 +55,10 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-t-xl rounded-b-3xl p-0 transition-all group shadow-sm hover:shadow-md border border-gray-100">
+    <div className="bg-white overflow-hidden transition-all group shadow-sm hover:shadow-md border border-gray-100" style={{ borderRadius: '16px 16px 24px 24px' }}>
       {/* Product Image - Clickable */}
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-square mb-3 overflow-hidden bg-white cursor-pointer rounded-t-xl">
+        <div className="relative aspect-square overflow-hidden bg-white cursor-pointer">
           <Image
             src={product.image}
             alt={product.name}
@@ -70,7 +70,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* Product Info */}
-      <div className="text-center space-y-1 px-3 pb-3">
+      <div className="text-center space-y-1 px-3 pb-3 pt-2">
         {/* Product Name - Clickable */}
         <Link href={`/product/${product.slug}`}>
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer">
@@ -97,38 +97,40 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="text-xs text-gray-500">P</span>
         </div>
 
-        {/* Add Button / Quantity Controls */}
-        {quantity === 0 ? (
-          <button
-            onClick={handleAddItem}
-            disabled={!mounted || !canAdd}
-            className={`w-full h-11 rounded-2xl flex items-center justify-center transition-colors font-semibold ${
-              mounted && canAdd
-                ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            <Plus className="h-5 w-5" />
-          </button>
-        ) : (
-          <div className="flex items-center justify-center gap-3 bg-secondary/30 rounded-2xl px-4 py-2.5">
+        {/* Add Button / Quantity Controls - Fixed height to prevent layout shift */}
+        <div className="h-11">
+          {quantity === 0 ? (
             <button
-              onClick={() => updateQuantity(product.id, quantity - 1)}
-              className="h-8 w-8 rounded-full border-2 border-primary bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+              onClick={handleAddItem}
+              disabled={!mounted || !canAdd}
+              className={`w-full h-full rounded-2xl flex items-center justify-center transition-colors font-semibold ${
+                mounted && canAdd
+                  ? "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
             >
-              <Minus className="h-4 w-4 text-primary" />
+              <Plus className="h-5 w-5" />
             </button>
-            <span className="text-base font-bold min-w-[28px] text-center text-gray-900">
-              {quantity}
-            </span>
-            <button
-              onClick={() => updateQuantity(product.id, quantity + 1)}
-              className="h-8 w-8 rounded-full border-2 border-primary bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="h-4 w-4 text-white" />
-            </button>
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center justify-center gap-3 bg-secondary/30 rounded-2xl h-full px-4">
+              <button
+                onClick={() => updateQuantity(product.id, quantity - 1)}
+                className="h-8 w-8 rounded-full border-2 border-primary bg-white flex items-center justify-center hover:bg-gray-50 transition-colors"
+              >
+                <Minus className="h-4 w-4 text-primary" />
+              </button>
+              <span className="text-base font-bold min-w-[28px] text-center text-gray-900">
+                {quantity}
+              </span>
+              <button
+                onClick={() => updateQuantity(product.id, quantity + 1)}
+                className="h-8 w-8 rounded-full border-2 border-primary bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
+              >
+                <Plus className="h-4 w-4 text-white" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Store Switch Modal */}
