@@ -14,9 +14,9 @@ import { useSessionStore } from "@/lib/store/session-store"
 import { useCartStore } from "@/lib/store/cart-store"
 
 const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400&h=600&fit=crop", // Grocery bag with vegetables
-  "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=1400&h=600&fit=crop", // Fresh vegetables
-  "https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=1400&h=600&fit=crop", // Fresh produce
+  "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=1400&h=600&fit=crop", // Grocery shopping with cart
+  "https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=1400&h=600&fit=crop", // Fresh vegetables in basket
+  "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1400&h=600&fit=crop", // Farmer's market produce
 ]
 
 export default function Home() {
@@ -106,7 +106,7 @@ export default function Home() {
           </div>
 
           {/* Curved Bottom Edge */}
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-r from-primary/85 via-primary/60 to-transparent z-[3]">
+          <div className="absolute bottom-0 left-0 right-0 h-20 z-[3]">
             <svg className="absolute bottom-0 w-full h-20" preserveAspectRatio="none" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
               <path d="M0,80 Q360,0 720,40 T1440,80 L1440,80 L0,80 Z" className="fill-background" />
             </svg>
