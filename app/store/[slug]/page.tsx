@@ -49,7 +49,8 @@ export default function StorePage() {
       {/* Store Header */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-start gap-4">
+          {/* Top Row: Logo, Info, Status */}
+          <div className="flex items-start gap-4 mb-4">
             {/* Store Logo */}
             <div className="relative h-20 w-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
               <Image
@@ -62,10 +63,10 @@ export default function StorePage() {
             </div>
 
             {/* Store Info */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h1 className="text-2xl md:text-3xl font-bold mb-2">{store.name}</h1>
 
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-medium text-foreground">{store.rating}</span>
@@ -80,31 +81,32 @@ export default function StorePage() {
                   <span>{store.distance}</span>
                 </div>
               </div>
-
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-nowrap">
-                {store.categories.slice(0, 4).map((cat, idx) => (
-                  <Badge key={idx} variant="secondary" className="whitespace-nowrap flex-shrink-0">
-                    {cat}
-                  </Badge>
-                ))}
-              </div>
             </div>
 
             {/* Store Status */}
-            <div className="text-right">
+            <div className="text-right flex-shrink-0">
               <Badge
                 variant={store.isOpen ? "default" : "secondary"}
                 className="mb-2"
               >
                 {store.isOpen ? "Open Now" : "Closed"}
               </Badge>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground whitespace-nowrap">
                 {store.operatingHours.open} - {store.operatingHours.close}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1 whitespace-nowrap">
                 Min order: P {store.minOrder}
               </p>
             </div>
+          </div>
+
+          {/* Bottom Row: Category Chips */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-nowrap">
+            {store.categories.slice(0, 4).map((cat, idx) => (
+              <Badge key={idx} variant="secondary" className="whitespace-nowrap flex-shrink-0">
+                {cat}
+              </Badge>
+            ))}
           </div>
         </div>
       </div>
